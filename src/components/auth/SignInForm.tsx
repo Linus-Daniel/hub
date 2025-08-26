@@ -1,19 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  FaGoogle,
+  FaGithub,
+  FaLinkedin,
+} from "react-icons/fa";
 import { loginSchema, LoginInput } from "@/lib/validators";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { FaGoogle, FaLinkedin } from "react-icons/fa";
 
 interface SignInFormProps {
   onForgotPassword: () => void;
+  onOAuthSignIn: (provider: string) => Promise<void>;
 }
 
-export default function SignInForm({ onForgotPassword }: SignInFormProps) {
+export default function SignInForm({
+  onForgotPassword,
+  onOAuthSignIn,
+}: SignInFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,21 +40,21 @@ export default function SignInForm({ onForgotPassword }: SignInFormProps) {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
+      if (result?.error) {
+        setError("Invalid email or password");
+        return;
       }
 
       router.push("/dashboard");
+      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -114,20 +123,27 @@ export default function SignInForm({ onForgotPassword }: SignInFormProps) {
         <div className="flex-grow border-t border-gray-200" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <button
           type="button"
+          onClick={() => onOAuthSignIn("google")}
           className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
         >
-          <FaGoogle className="mr-2" />
-          <span className="text-gray-700 font-medium">Google</span>
+          <FaGoogle className="text-gray-700" />
         </button>
         <button
           type="button"
+          onClick={() => onOAuthSignIn("github")}
           className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
         >
-          <FaLinkedin className="mr-2" />
-          <span className="text-gray-700 font-medium">LinkedIn</span>
+          <FaGithub className="text-gray-700" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onOAuthSignIn("linkedin")}
+          className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <FaLinkedin className="text-gray-700" />
         </button>
       </div>
     </form>

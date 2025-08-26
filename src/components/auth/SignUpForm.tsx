@@ -3,16 +3,24 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  FaGoogle,
+  FaGithub,
+  FaLinkedin,
+} from "react-icons/fa";
 import { registerSchema, RegisterInput } from "@/lib/validators";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { FaGoogle, FaLinkedin } from "react-icons/fa";
 
 interface SignUpFormProps {
   onSuccess: () => void;
+  onOAuthSignIn: (provider: string) => Promise<void>;
 }
 
-export default function SignUpForm({ onSuccess }: SignUpFormProps) {
+export default function SignUpForm({
+  onSuccess,
+  onOAuthSignIn,
+}: SignUpFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -145,20 +153,27 @@ export default function SignUpForm({ onSuccess }: SignUpFormProps) {
         <div className="flex-grow border-t border-gray-200" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <button
           type="button"
+          onClick={() => onOAuthSignIn("google")}
           className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
         >
-          <FaGoogle className="mr-2" />
-          <span className="text-gray-700 font-medium">Google</span>
+          <FaGoogle className="text-gray-700" />
         </button>
         <button
           type="button"
+          onClick={() => onOAuthSignIn("github")}
           className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
         >
-          <FaLinkedin className="mr-2" />
-          <span className="text-gray-700 font-medium">LinkedIn</span>
+          <FaGithub className="text-gray-700" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onOAuthSignIn("linkedin")}
+          className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        >
+          <FaLinkedin className="text-gray-700" />
         </button>
       </div>
     </form>

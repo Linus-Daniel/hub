@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import SignInForm from "./SignInForm";
 import SignUpForm from "./SignUpForm";
 import ForgotPasswordForm from "./ForgotPasswordForm";
@@ -17,6 +19,15 @@ type AuthView =
 
 export default function AuthContainer() {
   const [currentView, setCurrentView] = useState<AuthView>("signin");
+  const router = useRouter();
+
+  const handleOAuthSignIn = async (provider: string) => {
+    try {
+      await signIn(provider, { callbackUrl: "/dashboard" });
+    } catch (error) {
+      console.error(`${provider} sign-in error:`, error);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md transition-all duration-300">
@@ -24,7 +35,6 @@ export default function AuthContainer() {
       <div className="flex justify-center mb-8">
         <div className="bg-navy p-3 rounded-lg">
           <FaGraduationCap
-          
             className="text-gold text-xl"
           />
         </div>
@@ -64,10 +74,16 @@ export default function AuthContainer() {
 
       {/* Forms */}
       {currentView === "signin" && (
-        <SignInForm onForgotPassword={() => setCurrentView("forgot")} />
+        <SignInForm
+          onForgotPassword={() => setCurrentView("forgot")}
+          onOAuthSignIn={handleOAuthSignIn}
+        />
       )}
       {currentView === "signup" && (
-        <SignUpForm onSuccess={() => setCurrentView("signup-success")} />
+        <SignUpForm
+          onSuccess={() => setCurrentView("signup-success")}
+          onOAuthSignIn={handleOAuthSignIn}
+        />
       )}
       {currentView === "forgot" && (
         <ForgotPasswordForm

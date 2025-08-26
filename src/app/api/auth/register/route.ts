@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { registerSchema } from "@/lib/validators";
-import { createUser, findUserByEmail } from "@/lib/db";
-import { cookies } from "next/headers";
-
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+import clientPromise from "@/lib/mongodb";
+import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,8 +23,12 @@ export async function POST(request: NextRequest) {
 
     const { name, email, password, role } = validationResult.data;
 
+    // Connect to MongoDB
+    const client = await clientPromise;
+    const db = client.db();
+
     // Check if user already exists
-    const existingUser = await findUserByEmail(email);
+    const existingUser = await db.collection("users").findOne({ email });
     if (existingUser) {
       return NextResponse.json(
         { success: false, message: "User already exists with this email" },
@@ -37,46 +37,46 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Generate email verification token
+    const emailVerificationToken = crypto.randomBytes(32).toString("hex");
 
     // Create user
-    const user = await createUser({
+    const result = await db.collection("users").insertOne({
       name,
       email,
       password: hashedPassword,
-      role,
+      role: role || "student",
+      emailVerified: null,
+      emailVerificationToken,
+      image: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    // In production, send verification email here
+    // await sendVerificationEmail(email, emailVerificationToken);
 
-    // Set cookie
-    const cookieStore = await cookies();
-    cookieStore.set("auth-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
-
-    // Return success response
     return NextResponse.json(
       {
         success: true,
-        message: "Registration successful",
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        },
+        message:
+          "Registration successful. Please check your email to verify your account.",
+        userId: result.insertedId.toString(),
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Registration error:", error);
+
+    if (error.code === 11000) {
+      return NextResponse.json(
+        { success: false, message: "Email already registered" },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       { success: false, message: "Internal server error" },
       { status: 500 }
