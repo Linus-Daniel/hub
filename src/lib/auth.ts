@@ -7,7 +7,7 @@ import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import bcrypt from "bcryptjs";
 import clientPromise from "@/lib/mongodb";
 import { loginSchema } from "@/lib/validators";
-import {authConfig} from "@/lib/auth";
+import authConfig from "@/lib/auth.config";
 import type { User } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
@@ -32,7 +32,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       }
 
       if (user) {
-        token.id = user.id;
+        token.id = user.id as string;
         token.role = (user as ExtendedUser).role;
         token.emailVerified = (user as ExtendedUser).emailVerified;
       }
