@@ -1,4 +1,4 @@
-"use client"
+"use client";
 // pages/skills.js
 import { FormEvent, useState } from "react";
 
@@ -20,7 +20,7 @@ interface SkillFormData {
   experience: string;
   description: string;
 }
-import Layout from "@/components/students/Layout";
+import Layout from "@/components/accont/Layout";
 import {
   PlusIcon,
   PencilIcon,
@@ -147,7 +147,9 @@ export default function Skills() {
       Marketing: "text-yellow-600 bg-yellow-50",
       "Project Management": "text-teal-600 bg-teal-50",
     };
-    return colors[category as keyof typeof colors] || "text-gray-600 bg-gray-50";
+    return (
+      colors[category as keyof typeof colors] || "text-gray-600 bg-gray-50"
+    );
   };
 
   const openModal = (skill: Skill | null = null) => {
@@ -182,7 +184,7 @@ export default function Skills() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e:FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     if (editingSkill) {
@@ -204,13 +206,13 @@ export default function Skills() {
     closeModal();
   };
 
-  const handleDelete = (id:number) => {
+  const handleDelete = (id: number) => {
     if (confirm("Are you sure you want to delete this skill?")) {
       setSkills((prev) => prev.filter((skill) => skill.id !== id));
     }
   };
 
-  const toggleEndorsed = (id:number) => {
+  const toggleEndorsed = (id: number) => {
     setSkills((prev) =>
       prev.map((skill) =>
         skill.id === id ? { ...skill, endorsed: !skill.endorsed } : skill
@@ -218,14 +220,14 @@ export default function Skills() {
     );
   };
 
-  const getLevelColor = (level:number) => {
+  const getLevelColor = (level: number) => {
     if (level >= 80) return "bg-green-500";
     if (level >= 60) return "bg-yellow-500";
     if (level >= 40) return "bg-orange-500";
     return "bg-red-500";
   };
 
-  const getLevelLabel = (level:number) => {
+  const getLevelLabel = (level: number) => {
     if (level >= 80) return "Expert";
     if (level >= 60) return "Advanced";
     if (level >= 40) return "Intermediate";
@@ -321,104 +323,109 @@ export default function Skills() {
 
         {/* Skills by Category */}
         <div className="space-y-8">
-          {Object.entries(groupedSkills).map(([category, categorySkills]: [string, Skill[]]) => {
-            const IconComponent = getCategoryIcon(category);
-            const colorClass = getCategoryColor(category);
+          {Object.entries(groupedSkills).map(
+            ([category, categorySkills]: [string, Skill[]]) => {
+              const IconComponent = getCategoryIcon(category);
+              const colorClass = getCategoryColor(category);
 
-            return (
-              <div key={category} className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center mb-6">
-                  <div className={`p-2 rounded-lg ${colorClass}`}>
-                    <IconComponent className="h-5 w-5" />
+              return (
+                <div
+                  key={category}
+                  className="bg-white rounded-xl shadow-sm p-6"
+                >
+                  <div className="flex items-center mb-6">
+                    <div className={`p-2 rounded-lg ${colorClass}`}>
+                      <IconComponent className="h-5 w-5" />
+                    </div>
+                    <h2 className="text-xl font-semibold text-navy ml-3">
+                      {category}
+                    </h2>
+                    <span className="ml-auto text-sm text-gray-500">
+                      {categorySkills.length} skill
+                      {categorySkills.length !== 1 ? "s" : ""}
+                    </span>
                   </div>
-                  <h2 className="text-xl font-semibold text-navy ml-3">
-                    {category}
-                  </h2>
-                  <span className="ml-auto text-sm text-gray-500">
-                    {categorySkills.length} skill
-                    {categorySkills.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {categorySkills.map((skill) => (
-                    <div
-                      key={skill.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:border-teal transition-colors"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold text-navy">
-                            {skill.name}
-                          </h3>
-                          <div className="flex items-center mt-1">
-                            <span
-                              className={`text-xs px-2 py-1 rounded-full font-medium ${getLevelColor(
-                                skill.level
-                              )} text-white`}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {categorySkills.map((skill) => (
+                      <div
+                        key={skill.id}
+                        className="border border-gray-200 rounded-lg p-4 hover:border-teal transition-colors"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h3 className="font-semibold text-navy">
+                              {skill.name}
+                            </h3>
+                            <div className="flex items-center mt-1">
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full font-medium ${getLevelColor(
+                                  skill.level
+                                )} text-white`}
+                              >
+                                {getLevelLabel(skill.level)}
+                              </span>
+                              {skill.endorsed && (
+                                <StarIconSolid className="h-4 w-4 text-gold ml-2" />
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex space-x-1">
+                            <button
+                              onClick={() => openModal(skill)}
+                              className="p-1 text-gray-400 hover:text-teal transition"
                             >
-                              {getLevelLabel(skill.level)}
-                            </span>
-                            {skill.endorsed && (
-                              <StarIconSolid className="h-4 w-4 text-gold ml-2" />
-                            )}
+                              <PencilIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(skill.id)}
+                              className="p-1 text-gray-400 hover:text-red-500 transition"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
                           </div>
                         </div>
-                        <div className="flex space-x-1">
-                          <button
-                            onClick={() => openModal(skill)}
-                            className="p-1 text-gray-400 hover:text-teal transition"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(skill.id)}
-                            className="p-1 text-gray-400 hover:text-red-500 transition"
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
 
-                      <div className="mb-3">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="text-gray-600">Proficiency</span>
-                          <span className="text-navy font-medium">
-                            {skill.level}%
-                          </span>
+                        <div className="mb-3">
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-gray-600">Proficiency</span>
+                            <span className="text-navy font-medium">
+                              {skill.level}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full transition-all duration-500 ${getLevelColor(
+                                skill.level
+                              )}`}
+                              style={{ width: `${skill.level}%` }}
+                            ></div>
+                          </div>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`h-2 rounded-full transition-all duration-500 ${getLevelColor(
-                              skill.level
-                            )}`}
-                            style={{ width: `${skill.level}%` }}
-                          ></div>
+
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <p>
+                            <span className="font-medium">Experience:</span>{" "}
+                            {skill.experience}
+                          </p>
+                          <p>
+                            <span className="font-medium">Endorsements:</span>{" "}
+                            {skill.endorsements}
+                          </p>
                         </div>
-                      </div>
 
-                      <div className="text-sm text-gray-600 space-y-1">
-                        <p>
-                          <span className="font-medium">Experience:</span>{" "}
-                          {skill.experience}
-                        </p>
-                        <p>
-                          <span className="font-medium">Endorsements:</span>{" "}
-                          {skill.endorsements}
-                        </p>
+                        {skill.description && (
+                          <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                            {skill.description}
+                          </p>
+                        )}
                       </div>
-
-                      {skill.description && (
-                        <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                          {skill.description}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            }
+          )}
         </div>
 
         {skills.length === 0 && (

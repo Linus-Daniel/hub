@@ -1,72 +1,72 @@
-"use client"
+"use client";
 // pages/settings.js
-import { useState } from 'react';
-import Layout from '@/components/students/Layout';
-import { 
-  UserIcon, 
-  BellIcon, 
-  ShieldCheckIcon, 
-  CreditCardIcon, 
+import { useState } from "react";
+import Layout from "@/components/accont/Layout";
+import {
+  UserIcon,
+  BellIcon,
+  ShieldCheckIcon,
+  CreditCardIcon,
   EyeIcon,
   EyeSlashIcon,
-  CheckCircleIcon
-} from '@heroicons/react/24/outline';
+  CheckCircleIcon,
+} from "@heroicons/react/24/outline";
 
 export default function Settings() {
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState("profile");
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
     sms: false,
-    marketing: false
+    marketing: false,
   });
   const [privacy, setPrivacy] = useState({
     profileVisible: true,
     showEmail: false,
     showPhone: false,
-    showLocation: true
+    showLocation: true,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@university.edu',
-    phone: '+1 (555) 123-4567',
-    university: 'Stanford University',
-    major: 'Computer Science',
-    graduationYear: '2025',
-    location: 'San Francisco, CA',
-    bio: 'Passionate computer science student with a focus on web development and UI/UX design.',
-    website: 'https://johndoe.dev',
-    linkedin: 'https://linkedin.com/in/johndoe',
-    github: 'https://github.com/johndoe',
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@university.edu",
+    phone: "+1 (555) 123-4567",
+    university: "Stanford University",
+    major: "Computer Science",
+    graduationYear: "2025",
+    location: "San Francisco, CA",
+    bio: "Passionate computer science student with a focus on web development and UI/UX design.",
+    website: "https://johndoe.dev",
+    linkedin: "https://linkedin.com/in/johndoe",
+    github: "https://github.com/johndoe",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const tabs = [
-    { id: 'profile', label: 'Profile', icon: UserIcon },
-    { id: 'notifications', label: 'Notifications', icon: BellIcon },
-    { id: 'privacy', label: 'Privacy', icon: ShieldCheckIcon },
-    { id: 'billing', label: 'Billing', icon: CreditCardIcon }
+    { id: "profile", label: "Profile", icon: UserIcon },
+    { id: "notifications", label: "Notifications", icon: BellIcon },
+    { id: "privacy", label: "Privacy", icon: ShieldCheckIcon },
+    { id: "billing", label: "Billing", icon: CreditCardIcon },
   ];
 
-interface Notifications {
+  interface Notifications {
     email: boolean;
     push: boolean;
     sms: boolean;
     marketing: boolean;
-}
+  }
 
-interface Privacy {
+  interface Privacy {
     profileVisible: boolean;
     showEmail: boolean;
     showPhone: boolean;
     showLocation: boolean;
-}
+  }
 
-interface FormData {
+  interface FormData {
     firstName: string;
     lastName: string;
     email: string;
@@ -82,33 +82,33 @@ interface FormData {
     currentPassword: string;
     newPassword: string;
     confirmPassword: string;
-}
+  }
 
-interface Tab {
+  interface Tab {
     id: string;
     label: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-}
+  }
 
-const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev: FormData) => ({ ...prev, [field]: value }));
-};
+  };
 
-type NotificationKey = keyof Notifications;
+  type NotificationKey = keyof Notifications;
 
-const handleNotificationChange = (key: NotificationKey) => {
+  const handleNotificationChange = (key: NotificationKey) => {
     setNotifications((prev: Notifications) => ({ ...prev, [key]: !prev[key] }));
-};
+  };
 
-type PrivacyKey = keyof Privacy;
+  type PrivacyKey = keyof Privacy;
 
-const handlePrivacyChange = (key: PrivacyKey) => {
+  const handlePrivacyChange = (key: PrivacyKey) => {
     setPrivacy((prev: Privacy) => ({ ...prev, [key]: !prev[key] }));
-};
+  };
 
   const handleSave = () => {
     // Here you would typically save to your backend
-    alert('Settings saved successfully!');
+    alert("Settings saved successfully!");
   };
 
   return (
@@ -116,7 +116,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-navy mb-2">Settings</h1>
-          <p className="text-gray-600">Manage your account settings and preferences</p>
+          <p className="text-gray-600">
+            Manage your account settings and preferences
+          </p>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -132,8 +134,8 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors mb-2 ${
                         activeTab === tab.id
-                          ? 'bg-teal text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? "bg-teal text-white"
+                          : "text-gray-700 hover:bg-gray-100"
                       }`}
                     >
                       <Icon className="h-5 w-5" />
@@ -146,10 +148,12 @@ const handlePrivacyChange = (key: PrivacyKey) => {
 
             {/* Content */}
             <div className="flex-1 p-6">
-              {activeTab === 'profile' && (
+              {activeTab === "profile" && (
                 <div>
-                  <h2 className="text-2xl font-bold text-navy mb-6">Profile Information</h2>
-                  
+                  <h2 className="text-2xl font-bold text-navy mb-6">
+                    Profile Information
+                  </h2>
+
                   {/* Profile Picture */}
                   <div className="mb-8">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -180,7 +184,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       <input
                         type="tel"
                         value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                       />
                     </div>
@@ -192,7 +198,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       <input
                         type="text"
                         value={formData.university}
-                        onChange={(e) => handleInputChange('university', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("university", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                       />
                     </div>
@@ -204,7 +212,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       <input
                         type="text"
                         value={formData.major}
-                        onChange={(e) => handleInputChange('major', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("major", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                       />
                     </div>
@@ -215,7 +225,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       </label>
                       <select
                         value={formData.graduationYear}
-                        onChange={(e) => handleInputChange('graduationYear', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("graduationYear", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                       >
                         <option value="2024">2024</option>
@@ -233,7 +245,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       <input
                         type="text"
                         value={formData.location}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("location", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                       />
                     </div>
@@ -245,7 +259,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       <textarea
                         rows={4}
                         value={formData.bio}
-                        onChange={(e) => handleInputChange('bio', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("bio", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                         placeholder="Tell us about yourself..."
                       />
@@ -258,7 +274,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       <input
                         type="url"
                         value={formData.website}
-                        onChange={(e) => handleInputChange('website', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("website", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                         placeholder="https://yourwebsite.com"
                       />
@@ -271,7 +289,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       <input
                         type="url"
                         value={formData.linkedin}
-                        onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("linkedin", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                         placeholder="https://linkedin.com/in/username"
                       />
@@ -284,7 +304,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                       <input
                         type="url"
                         value={formData.github}
-                        onChange={(e) => handleInputChange('github', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("github", e.target.value)
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                         placeholder="https://github.com/username"
                       />
@@ -293,7 +315,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
 
                   {/* Password Section */}
                   <div className="mt-8 pt-8 border-t border-gray-200">
-                    <h3 className="text-lg font-semibold text-navy mb-4">Change Password</h3>
+                    <h3 className="text-lg font-semibold text-navy mb-4">
+                      Change Password
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -303,7 +327,12 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                           <input
                             type={showPassword ? "text" : "password"}
                             value={formData.currentPassword}
-                            onChange={(e) => handleInputChange('currentPassword', e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange(
+                                "currentPassword",
+                                e.target.value
+                              )
+                            }
                             className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                           />
                           <button
@@ -327,7 +356,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                         <input
                           type="password"
                           value={formData.newPassword}
-                          onChange={(e) => handleInputChange('newPassword', e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("newPassword", e.target.value)
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                         />
                       </div>
@@ -339,7 +370,9 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                         <input
                           type="password"
                           value={formData.confirmPassword}
-                          onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("confirmPassword", e.target.value)
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
                         />
                       </div>
@@ -348,21 +381,27 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                 </div>
               )}
 
-              {activeTab === 'notifications' && (
+              {activeTab === "notifications" && (
                 <div>
-                  <h2 className="text-2xl font-bold text-navy mb-6">Notification Preferences</h2>
-                  
+                  <h2 className="text-2xl font-bold text-navy mb-6">
+                    Notification Preferences
+                  </h2>
+
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-navy">Email Notifications</h3>
-                        <p className="text-gray-600">Receive notifications via email</p>
+                        <h3 className="text-lg font-medium text-navy">
+                          Email Notifications
+                        </h3>
+                        <p className="text-gray-600">
+                          Receive notifications via email
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={notifications.email}
-                          onChange={() => handleNotificationChange('email')}
+                          onChange={() => handleNotificationChange("email")}
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
@@ -371,14 +410,18 @@ const handlePrivacyChange = (key: PrivacyKey) => {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-navy">Push Notifications</h3>
-                        <p className="text-gray-600">Receive push notifications in your browser</p>
+                        <h3 className="text-lg font-medium text-navy">
+                          Push Notifications
+                        </h3>
+                        <p className="text-gray-600">
+                          Receive push notifications in your browser
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={notifications.push}
-                          onChange={() => handleNotificationChange('push')}
+                          onChange={() => handleNotificationChange("push")}
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
@@ -387,14 +430,18 @@ const handlePrivacyChange = (key: PrivacyKey) => {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-navy">SMS Notifications</h3>
-                        <p className="text-gray-600">Receive important updates via SMS</p>
+                        <h3 className="text-lg font-medium text-navy">
+                          SMS Notifications
+                        </h3>
+                        <p className="text-gray-600">
+                          Receive important updates via SMS
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={notifications.sms}
-                          onChange={() => handleNotificationChange('sms')}
+                          onChange={() => handleNotificationChange("sms")}
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
@@ -403,14 +450,18 @@ const handlePrivacyChange = (key: PrivacyKey) => {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-navy">Marketing Communications</h3>
-                        <p className="text-gray-600">Receive updates about new features and opportunities</p>
+                        <h3 className="text-lg font-medium text-navy">
+                          Marketing Communications
+                        </h3>
+                        <p className="text-gray-600">
+                          Receive updates about new features and opportunities
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={notifications.marketing}
-                          onChange={() => handleNotificationChange('marketing')}
+                          onChange={() => handleNotificationChange("marketing")}
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
@@ -420,21 +471,27 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                 </div>
               )}
 
-              {activeTab === 'privacy' && (
+              {activeTab === "privacy" && (
                 <div>
-                  <h2 className="text-2xl font-bold text-navy mb-6">Privacy Settings</h2>
-                  
+                  <h2 className="text-2xl font-bold text-navy mb-6">
+                    Privacy Settings
+                  </h2>
+
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-navy">Profile Visibility</h3>
-                        <p className="text-gray-600">Make your profile visible to other users</p>
+                        <h3 className="text-lg font-medium text-navy">
+                          Profile Visibility
+                        </h3>
+                        <p className="text-gray-600">
+                          Make your profile visible to other users
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={privacy.profileVisible}
-                          onChange={() => handlePrivacyChange('profileVisible')}
+                          onChange={() => handlePrivacyChange("profileVisible")}
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
@@ -443,14 +500,18 @@ const handlePrivacyChange = (key: PrivacyKey) => {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-navy">Show Email Address</h3>
-                        <p className="text-gray-600">Display your email address on your public profile</p>
+                        <h3 className="text-lg font-medium text-navy">
+                          Show Email Address
+                        </h3>
+                        <p className="text-gray-600">
+                          Display your email address on your public profile
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={privacy.showEmail}
-                          onChange={() => handlePrivacyChange('showEmail')}
+                          onChange={() => handlePrivacyChange("showEmail")}
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
@@ -459,14 +520,18 @@ const handlePrivacyChange = (key: PrivacyKey) => {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-navy">Show Phone Number</h3>
-                        <p className="text-gray-600">Display your phone number on your public profile</p>
+                        <h3 className="text-lg font-medium text-navy">
+                          Show Phone Number
+                        </h3>
+                        <p className="text-gray-600">
+                          Display your phone number on your public profile
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={privacy.showPhone}
-                          onChange={() => handlePrivacyChange('showPhone')}
+                          onChange={() => handlePrivacyChange("showPhone")}
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
@@ -475,14 +540,18 @@ const handlePrivacyChange = (key: PrivacyKey) => {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-navy">Show Location</h3>
-                        <p className="text-gray-600">Display your location on your public profile</p>
+                        <h3 className="text-lg font-medium text-navy">
+                          Show Location
+                        </h3>
+                        <p className="text-gray-600">
+                          Display your location on your public profile
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={privacy.showLocation}
-                          onChange={() => handlePrivacyChange('showLocation')}
+                          onChange={() => handlePrivacyChange("showLocation")}
                           className="sr-only peer"
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal"></div>
@@ -491,9 +560,12 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                   </div>
 
                   <div className="mt-8 p-4 bg-red-50 rounded-lg">
-                    <h3 className="text-lg font-medium text-red-800 mb-2">Danger Zone</h3>
+                    <h3 className="text-lg font-medium text-red-800 mb-2">
+                      Danger Zone
+                    </h3>
                     <p className="text-red-600 mb-4">
-                      Once you delete your account, there is no going back. Please be certain.
+                      Once you delete your account, there is no going back.
+                      Please be certain.
                     </p>
                     <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
                       Delete Account
@@ -502,23 +574,35 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                 </div>
               )}
 
-              {activeTab === 'billing' && (
+              {activeTab === "billing" && (
                 <div>
-                  <h2 className="text-2xl font-bold text-navy mb-6">Billing & Subscription</h2>
-                  
+                  <h2 className="text-2xl font-bold text-navy mb-6">
+                    Billing & Subscription
+                  </h2>
+
                   <div className="mb-8">
                     <div className="bg-gradient-to-r from-teal to-navy p-6 rounded-xl text-white mb-6">
-                      <h3 className="text-xl font-semibold mb-2">Current Plan: Free</h3>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Current Plan: Free
+                      </h3>
                       <p className="text-teal-100">
-                        You're currently on the free plan. Upgrade to unlock more features.
+                        You're currently on the free plan. Upgrade to unlock
+                        more features.
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="border border-gray-200 rounded-lg p-6">
                         <div className="text-center">
-                          <h3 className="text-lg font-semibold text-navy mb-2">Free</h3>
-                          <div className="text-3xl font-bold text-navy mb-4">$0<span className="text-sm text-gray-500">/month</span></div>
+                          <h3 className="text-lg font-semibold text-navy mb-2">
+                            Free
+                          </h3>
+                          <div className="text-3xl font-bold text-navy mb-4">
+                            $0
+                            <span className="text-sm text-gray-500">
+                              /month
+                            </span>
+                          </div>
                           <ul className="text-sm text-gray-600 space-y-2 mb-6">
                             <li className="flex items-center">
                               <CheckCircleIcon className="h-4 w-4 text-green-500 mr-2" />
@@ -546,8 +630,15 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                           </span>
                         </div>
                         <div className="text-center">
-                          <h3 className="text-lg font-semibold text-navy mb-2">Pro</h3>
-                          <div className="text-3xl font-bold text-navy mb-4">$9<span className="text-sm text-gray-500">/month</span></div>
+                          <h3 className="text-lg font-semibold text-navy mb-2">
+                            Pro
+                          </h3>
+                          <div className="text-3xl font-bold text-navy mb-4">
+                            $9
+                            <span className="text-sm text-gray-500">
+                              /month
+                            </span>
+                          </div>
                           <ul className="text-sm text-gray-600 space-y-2 mb-6">
                             <li className="flex items-center">
                               <CheckCircleIcon className="h-4 w-4 text-green-500 mr-2" />
@@ -574,8 +665,15 @@ const handlePrivacyChange = (key: PrivacyKey) => {
 
                       <div className="border border-gray-200 rounded-lg p-6">
                         <div className="text-center">
-                          <h3 className="text-lg font-semibold text-navy mb-2">Enterprise</h3>
-                          <div className="text-3xl font-bold text-navy mb-4">$29<span className="text-sm text-gray-500">/month</span></div>
+                          <h3 className="text-lg font-semibold text-navy mb-2">
+                            Enterprise
+                          </h3>
+                          <div className="text-3xl font-bold text-navy mb-4">
+                            $29
+                            <span className="text-sm text-gray-500">
+                              /month
+                            </span>
+                          </div>
                           <ul className="text-sm text-gray-600 space-y-2 mb-6">
                             <li className="flex items-center">
                               <CheckCircleIcon className="h-4 w-4 text-green-500 mr-2" />
@@ -610,7 +708,7 @@ const handlePrivacyChange = (key: PrivacyKey) => {
                   <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
                     Cancel
                   </button>
-                  <button 
+                  <button
                     onClick={handleSave}
                     className="px-6 py-2 bg-teal text-white rounded-lg hover:bg-opacity-90 transition"
                   >

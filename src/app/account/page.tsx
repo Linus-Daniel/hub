@@ -1,6 +1,6 @@
-"use client"// pages/dashboard.js
+"use client"; // pages/dashboard.js
 import { useState } from "react";
-import Layout from "@/components/students/Layout";
+import Layout from "@/components/accont/Layout";
 import Link from "next/link";
 import {
   EyeIcon,
@@ -116,7 +116,13 @@ export default function Dashboard() {
     },
   ];
 
-  const StatCard = ({ title, value, change, trend, icon: Icon }: {
+  const StatCard = ({
+    title,
+    value,
+    change,
+    trend,
+    icon: Icon,
+  }: {
     title: string;
     value: number;
     change: number;

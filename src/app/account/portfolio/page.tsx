@@ -1,4 +1,4 @@
-"use client"
+"use client";
 // pages/portfolio.js
 import { useState } from "react";
 
@@ -25,7 +25,7 @@ interface FormData {
   githubUrl: string;
   featured: boolean;
 }
-import Layout from "@/components/students/Layout";
+import Layout from "@/components/accont/Layout";
 import {
   PlusIcon,
   PencilIcon,

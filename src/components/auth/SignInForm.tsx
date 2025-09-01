@@ -51,7 +51,7 @@ export default function SignInForm({
         return;
       }
 
-      router.push("/dashboard");
+      router.push("/account");
       router.refresh();
     } catch (err) {
       setError("An error occurred. Please try again.");

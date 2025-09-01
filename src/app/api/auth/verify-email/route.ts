@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
+import { sendWelcomeEmail } from "@/lib/email/send-mail";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
     const client = await clientPromise;
     const db = client.db();
 
-    // Find user with this verification token
     const user = await db.collection("users").findOne({
       emailVerificationToken: token,
     });
@@ -29,7 +28,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Verify the email
     await db.collection("users").updateOne(
       { _id: user._id },
       {
@@ -40,6 +38,9 @@ export async function GET(request: NextRequest) {
         $unset: { emailVerificationToken: "" },
       }
     );
+
+    // Send welcome email after successful verification
+    await sendWelcomeEmail(user.email, user.name);
 
     return NextResponse.json(
       {

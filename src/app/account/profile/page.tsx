@@ -1,14 +1,13 @@
 // pages/student/profile.js
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import Layout from "@/components/students/Layout";
-import ChatInterface from "../../../components/students/ChatInterface";
+import Layout from "@/components/accont/Layout";
+import ChatInterface from "../../../components/accont/ChatInterface";
 import {
   ArrowLeftIcon,
   BriefcaseIcon,
   UserPlusIcon,
   ChatBubbleLeftIcon,
-
 } from "@heroicons/react/24/outline";
 
 // Sample student data - in real app this would come from API/database

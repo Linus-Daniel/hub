@@ -3,12 +3,12 @@ import bcrypt from "bcryptjs";
 import { registerSchema } from "@/lib/validators";
 import clientPromise from "@/lib/mongodb";
 import crypto from "crypto";
+import { sendVerificationEmail } from "@/lib/email/send-mail";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate input
     const validationResult = registerSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
@@ -23,11 +23,9 @@ export async function POST(request: NextRequest) {
 
     const { name, email, password, role } = validationResult.data;
 
-    // Connect to MongoDB
     const client = await clientPromise;
     const db = client.db();
 
-    // Check if user already exists
     const existingUser = await db.collection("users").findOne({ email });
     if (existingUser) {
       return NextResponse.json(
@@ -36,13 +34,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Generate email verification token
     const emailVerificationToken = crypto.randomBytes(32).toString("hex");
 
-    // Create user
     const result = await db.collection("users").insertOne({
       name,
       email,
@@ -55,8 +49,8 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date(),
     });
 
-    // In production, send verification email here
-    // await sendVerificationEmail(email, emailVerificationToken);
+    // Send verification email
+    await sendVerificationEmail(email, name, emailVerificationToken);
 
     return NextResponse.json(
       {

@@ -1,6 +1,6 @@
 // pages/projects.js
 import { useState } from "react";
-import Layout from "@/components/students/Layout";
+import Layout from "@/components/accont/Layout";
 import Link from "next/link";
 import {
   PlusIcon,
@@ -101,7 +101,7 @@ export default function Projects() {
     },
   ]);
 
-  const getStatusColor = (status:string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
         return "text-green-600 bg-green-50 border-green-200";
@@ -116,7 +116,7 @@ export default function Projects() {
     }
   };
 
-  const getStatusIcon = (status:string) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
         return CheckCircleIcon;
@@ -146,7 +146,7 @@ export default function Projects() {
     }
   };
 
-  const getStatusLabel = (status:string) => {
+  const getStatusLabel = (status: string) => {
     switch (status) {
       case "completed":
         return "Completed";

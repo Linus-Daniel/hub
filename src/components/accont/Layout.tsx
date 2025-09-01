@@ -23,10 +23,10 @@ export default function Layout({ children }:{children: React.ReactNode}) {
   const pathname = usePathname()
 
   const navigation = [
-    { name: "Dashboard", href: "/student/", icon: ChartBarIcon },
-    { name: "Portfolio", href: "/student/portfolio", icon: BriefcaseIcon },
-    { name: "Skills", href: "/student/skills", icon: AcademicCapIcon },
-    { name: "Settings", href: "/student/settings", icon: Cog6ToothIcon },
+    { name: "Dashboard", href: "/account/", icon: ChartBarIcon },
+    { name: "Portfolio", href: "/account/portfolio", icon: BriefcaseIcon },
+    { name: "Skills", href: "/account/skills", icon: AcademicCapIcon },
+    { name: "Settings", href: "/account/settings", icon: Cog6ToothIcon },
   ];
 
   const isActive = (href:string) => {
