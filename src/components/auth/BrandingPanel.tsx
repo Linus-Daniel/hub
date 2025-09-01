@@ -28,7 +28,7 @@ export default function BrandingPanel() {
       <div className="absolute inset-0 bg-gradient-to-b from-navy/70 to-navy/90 z-10" />
       <div className="absolute inset-0 w-full h-full">
         <Image
-          src="/api/placeholder/800/800"
+          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/345b123eaa-f9ac9ccb3b2273f784ee.png"
           alt="Nigerian students working on laptops"
           fill
           className="object-cover"

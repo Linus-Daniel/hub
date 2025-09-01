@@ -3,6 +3,7 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import clientPromise from "@/lib/mongodb";
+import { sendPasswordResetEmail } from "@/lib/email/send-mail";
 
 const resetPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { email } = validationResult.data;
+    
 
     const client = await clientPromise;
     const db = client.db();
@@ -63,9 +65,9 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // In production, send email with reset link
-    // const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
-    // await sendPasswordResetEmail(email, resetUrl);
+  
+    const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
+    await sendPasswordResetEmail(email, resetUrl,user.name);
 
     console.log(`Reset token for ${email}: ${resetToken}`);
 

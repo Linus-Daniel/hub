@@ -5,7 +5,7 @@ import { resetPasswordTemplate } from './templates/reset-password';
 import { welcomeTemplate } from './templates/Welcome';
 
 export async function sendVerificationEmail(email: string, name: string, token: string) {
-  const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`;
   const template = verifyEmailTemplate(name, verificationUrl);
   
   try {
