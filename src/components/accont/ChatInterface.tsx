@@ -1,3 +1,4 @@
+"use client"
 // components/ChatInterface.js
 import { useState, useRef, useEffect } from "react";
 

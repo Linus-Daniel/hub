@@ -1,7 +1,7 @@
+"use client"
 // pages/student/profile.js
 import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import Layout from "@/components/accont/Layout";
+import { useRouter } from "next/navigation";
 import ChatInterface from "../../../components/accont/ChatInterface";
 import {
   ArrowLeftIcon,

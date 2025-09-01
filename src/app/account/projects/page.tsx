@@ -1,4 +1,5 @@
 // pages/projects.js
+"use client";
 import { useState } from "react";
 import Layout from "@/components/accont/Layout";
 import Link from "next/link";

@@ -1,4 +1,4 @@
-// components/Layout.js - Updated with new navigation
+"use client"// components/Layout.js - Updated with new navigation
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
