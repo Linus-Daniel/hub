@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";
+import { TalentUser } from "@/models/User";
 import { sendWelcomeEmail } from "@/lib/email/send-mail";
 
 export async function GET(request: NextRequest) {
@@ -14,12 +15,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const client = await clientPromise;
-    const db = client.db();
+    // Ensure DB is connected
+    await connectDB();
 
-    const user = await db.collection("users").findOne({
-      emailVerificationToken: token,
-    });
+    // Find user with this verification token
+    const user = await TalentUser.findOne({ emailVerificationToken: token });
 
     if (!user) {
       return NextResponse.json(
@@ -28,19 +28,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    await db.collection("users").updateOne(
-      { _id: user._id },
-      {
-        $set: {
-          emailVerified: new Date(),
-          updatedAt: new Date(),
-        },
-        $unset: { emailVerificationToken: "" },
-      }
-    );
+    // Mark email as verified
+    user.emailVerified = new Date();
+    user.updatedAt = new Date();
+    user.emailVerificationToken = undefined; // remove token
+    await user.save();
 
-    // Send welcome email after successful verification
-    await sendWelcomeEmail(user.email, user.name);
+    // Send welcome email
+    await sendWelcomeEmail(user.email, user.fullname || user.email);
 
     return NextResponse.json(
       {

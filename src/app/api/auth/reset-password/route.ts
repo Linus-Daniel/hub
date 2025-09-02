@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import clientPromise from "@/lib/mongodb";
+import { connectDB } from "@/lib/mongodb";
+import { TalentUser } from "@/models/User";
 import { sendPasswordResetEmail } from "@/lib/email/send-mail";
 
+// Schemas
 const resetPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
@@ -18,8 +20,8 @@ const newPasswordSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-
     const validationResult = resetPasswordSchema.safeParse(body);
+
     if (!validationResult.success) {
       return NextResponse.json(
         { success: false, message: "Invalid email address" },
@@ -28,12 +30,11 @@ export async function POST(request: NextRequest) {
     }
 
     const { email } = validationResult.data;
-    
 
-    const client = await clientPromise;
-    const db = client.db();
+    // ✅ Ensure DB connection
+    await connectDB();
 
-    const user = await db.collection("users").findOne({ email });
+    const user = await TalentUser.findOne({ email });
 
     if (!user) {
       // Don't reveal if user exists
@@ -46,30 +47,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate reset token
+    // ✅ Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    // Save token with expiry
-    await db.collection("users").updateOne(
-      { _id: user._id },
-      {
-        $set: {
-          resetPasswordToken: hashedToken,
-          resetPasswordExpires: new Date(Date.now() + 3600000), // 1 hour
-          updatedAt: new Date(),
-        },
-      }
-    );
+    // ✅ Save token & expiry on user
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
+    user.updatedAt = new Date();
+    await user.save();
 
-  
+    // ✅ Send email
     const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
-    await sendPasswordResetEmail(email, resetUrl,user.name);
+    await sendPasswordResetEmail(email, resetUrl, user.fullname);
 
-    console.log(`Reset token for ${email}: ${resetToken}`);
+    console.log(`🔑 Reset token for ${email}: ${resetToken}`);
 
     return NextResponse.json(
       {
@@ -91,8 +86,8 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-
     const validationResult = newPasswordSchema.safeParse(body);
+
     if (!validationResult.success) {
       return NextResponse.json(
         { success: false, message: "Invalid request" },
@@ -101,13 +96,12 @@ export async function PUT(request: NextRequest) {
     }
 
     const { token, password } = validationResult.data;
-
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    const client = await clientPromise;
-    const db = client.db();
+    // ✅ Ensure DB connection
+    await connectDB();
 
-    const user = await db.collection("users").findOne({
+    const user = await TalentUser.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: new Date() },
     });
@@ -119,23 +113,15 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Hash new password
+    // ✅ Hash new password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Update password and clear reset token
-    await db.collection("users").updateOne(
-      { _id: user._id },
-      {
-        $set: {
-          password: hashedPassword,
-          updatedAt: new Date(),
-        },
-        $unset: {
-          resetPasswordToken: "",
-          resetPasswordExpires: "",
-        },
-      }
-    );
+    // ✅ Update password & clear reset token
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    user.updatedAt = new Date();
+    await user.save();
 
     return NextResponse.json(
       { success: true, message: "Password reset successfully" },

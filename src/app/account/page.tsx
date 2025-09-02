@@ -160,7 +160,6 @@ export default function Dashboard() {
   );
 
   return (
-    <Layout>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -405,6 +404,5 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }
