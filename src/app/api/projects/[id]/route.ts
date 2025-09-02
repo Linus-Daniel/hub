@@ -7,17 +7,18 @@ import { authOptions } from "@/lib/auth";
 // GET single project
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const {id} = await params
 
     await connectDB();
     const project = await Project.findOne({
-      _id: params.id,
+      _id: id,
       userId: session.user.id,
     });
 
@@ -37,7 +38,7 @@ export async function GET(
 // PUT update project
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -47,9 +48,10 @@ export async function PUT(
 
     const body = await req.json();
     await connectDB();
+    const {id} = await params
 
     const project = await Project.findOneAndUpdate(
-      { _id: params.id, userId: session.user.id },
+      { _id:id, userId: session.user.id },
       body,
       { new: true, runValidators: true }
     );
@@ -70,7 +72,7 @@ export async function PUT(
 // DELETE project
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -79,8 +81,9 @@ export async function DELETE(
     }
 
     await connectDB();
+    const {id} = await params
     const project = await Project.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId: session.user.id,
     });
 

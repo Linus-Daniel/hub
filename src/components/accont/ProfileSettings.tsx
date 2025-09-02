@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { Camera, Eye, EyeOff } from 'lucide-react';
+import ImageUpload from '../ImageUpload';
 
 interface ProfileSettingsProps {
   userData: any;
@@ -15,6 +16,7 @@ export default function ProfileSettings({ userData, onSave, saving }: ProfileSet
     fullname: userData.fullname || '',
     email: userData.email || '',
     phone: userData.phone || '',
+    avatar: userData.avatar || '',  
     institution: userData.institution || '',
     major: userData.major || '',
     graduationYear: userData.graduationYear || '',
@@ -52,6 +54,11 @@ export default function ProfileSettings({ userData, onSave, saving }: ProfileSet
     setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
   };
 
+  const handImageUpload = (url: string) => {
+    setFormData({ ...formData, avatar:url });
+    console.log(url,"result");
+  }
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Profile Information</h2>
@@ -72,6 +79,14 @@ export default function ProfileSettings({ userData, onSave, saving }: ProfileSet
           <button className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
             Change Photo
           </button>
+          <ImageUpload title="Change Photo"
+          onSuccess={(info)=>{handImageUpload(info.url)}}
+          >
+            <p>
+              Hello
+            </p>
+          </ImageUpload>
+          
           <p className="text-sm text-gray-500 mt-1">JPG, PNG or GIF. Max 5MB.</p>
         </div>
       </div>
@@ -118,7 +133,7 @@ export default function ProfileSettings({ userData, onSave, saving }: ProfileSet
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              University
+              Institution
             </label>
             <input
               type="text"
