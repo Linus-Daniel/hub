@@ -59,6 +59,8 @@ export default function PortfolioPage() {
     }
   };
 
+  
+
   const handleSave = async (projectData: Partial<Project>) => {
     try {
       const url = editingProject

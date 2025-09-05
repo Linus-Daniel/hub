@@ -1,575 +1,894 @@
 "use client";
-
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { debounce } from "lodash";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import Head from "next/head";
 import {
-  Search,
-  Filter,
-  MapPin,
-  GraduationCap,
-  Star,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Code,
-  Award,
-  Briefcase,
-  TrendingUp,
-  Users,
-} from "lucide-react";
-import { toast } from "sonner";
+  FaMagnifyingGlass,
+  FaSliders,
+  FaBell,
+  FaCircleUser,
+  FaChevronDown,
+  FaTableCellsLarge,
+  FaChevronLeft,
+  FaChevronRight,
+  FaXmark,
+  FaArrowLeft,
+  FaEnvelope,
+  FaStar,
+  FaLocationDot,
+  FaGraduationCap,
+  FaBuildingColumns,
+  FaHouse,
+  FaUserGroup,
+  FaUser,
+  FaGlobe,
+  FaGithub,
+  FaLinkedin,
+  FaPhone,
+} from "react-icons/fa6";
 
-interface SearchResult {
-  talents: any[];
-  metadata: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-  };
-  filters: {
-    majors: string[];
-    locations: string[];
-    popularSkills: string[];
-    popularTechnologies: string[];
-  };
+// Types
+interface Student {
+  id: string;
+  name: string;
+  title: string;
+  status: string;
+  skills: string[];
+  university: string;
+  image: string;
+  gradient: string;
+  location?: string;
+  graduationYear?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  github?: string;
+  linkedin?: string;
+  bio?: string;
+  major: string;
+  emailVerified?: boolean;
+  createdAt?: string;
 }
 
-export default function TalentsPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+// Constants
+const GRADIENT_OPTIONS = [
+  "from-navy to-teal",
+  "from-gold to-teal",
+  "from-navy to-gold",
+  "from-teal to-navy",
+  "from-gold to-navy",
+  "from-teal to-gold",
+  "from-purple-600 to-blue-600",
+  "from-green-600 to-teal-600",
+  "from-orange-600 to-red-600",
+  "from-indigo-600 to-purple-600",
+];
 
-  const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [filters, setFilters] = useState({
-    major: searchParams.get("major") || "",
-    location: searchParams.get("location") || "",
-    skill: searchParams.get("skill") || "",
-    technology: searchParams.get("technology") || "",
-  });
-  const [sortBy, setSortBy] = useState(
-    searchParams.get("sortBy") || "relevance"
-  );
-  const [currentPage, setCurrentPage] = useState(
-    parseInt(searchParams.get("page") || "1")
-  );
-  const [showFilters, setShowFilters] = useState(false);
+const MAJOR_SKILL_MAP: Record<string, string[]> = {
+  Mechatronics: ["Arduino", "Robotics", "3D Modeling", "Programming"],
+  "Computer Science": ["React", "Node.js", "Python", "JavaScript"],
+  "Electrical Engineering": [
+    "Circuit Design",
+    "MATLAB",
+    "Arduino",
+    "PCB Design",
+  ],
+  "Software Engineering": ["Full Stack", "React", "Node.js", "Database Design"],
+  "Mechanical Engineering": ["CAD", "SolidWorks", "3D Modeling", "AutoCAD"],
+  "Civil Engineering": [
+    "AutoCAD",
+    "Revit",
+    "Project Management",
+    "Structural Analysis",
+  ],
+  "UI/UX Design": ["Figma", "Adobe XD", "Prototyping", "User Research"],
+  "Graphic Design": ["Adobe Suite", "Branding", "Typography", "Illustration"],
+};
 
-  // Debounced search function
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((searchTerm: string) => {
-        performSearch({ ...filters, q: searchTerm });
-      }, 500),
-    [filters]
-  );
+const DEFAULT_SKILLS = [
+  "Programming",
+  "Problem Solving",
+  "Teamwork",
+  "Communication",
+];
 
-  useEffect(() => {
-    performSearch();
-  }, []);
+// Utility Functions
+const getRandomGradient = (index: number): string => {
+  return GRADIENT_OPTIONS[index % GRADIENT_OPTIONS.length];
+};
 
-  useEffect(() => {
-    debouncedSearch(searchQuery);
-    return () => debouncedSearch.cancel();
-  }, [searchQuery, debouncedSearch]);
+const extractSkills = (student: Partial<Student>): string[] => {
+  return student.major && MAJOR_SKILL_MAP[student.major]
+    ? MAJOR_SKILL_MAP[student.major]
+    : DEFAULT_SKILLS;
+};
 
-  useEffect(() => {
-    performSearch();
-  }, [filters, sortBy, currentPage]);
-
-  const performSearch = async (overrideFilters?: any) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      const activeFilters = overrideFilters || { ...filters, q: searchQuery };
-
-      if (activeFilters.q) params.append("q", activeFilters.q);
-      if (activeFilters.major) params.append("major", activeFilters.major);
-      if (activeFilters.location)
-        params.append("location", activeFilters.location);
-      if (activeFilters.skill) params.append("skill", activeFilters.skill);
-      if (activeFilters.technology)
-        params.append("technology", activeFilters.technology);
-      params.append("sortBy", sortBy);
-      params.append("page", currentPage.toString());
-      params.append("limit", "12");
-
-      const response = await fetch(`/api/talents/search?${params}`);
-      if (!response.ok) throw new Error("Search failed");
-
-      const data = await response.json();
-      setSearchResult(data);
-
-      // Update URL params
-      const newParams = new URLSearchParams();
-      if (searchQuery) newParams.set("q", searchQuery);
-      if (filters.major) newParams.set("major", filters.major);
-      if (filters.location) newParams.set("location", filters.location);
-      if (filters.skill) newParams.set("skill", filters.skill);
-      if (filters.technology) newParams.set("technology", filters.technology);
-      if (sortBy !== "relevance") newParams.set("sortBy", sortBy);
-      if (currentPage > 1) newParams.set("page", currentPage.toString());
-
-      router.push(
-        `/talents${newParams.toString() ? "?" + newParams.toString() : ""}`,
-        { scroll: false }
-      );
-    } catch (error) {
-      console.error("Search error:", error);
-      toast.error("Failed to search talents");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-    setCurrentPage(1);
-  };
-
-  const clearAllFilters = () => {
-    setSearchQuery("");
-    setFilters({
-      major: "",
-      location: "",
-      skill: "",
-      technology: "",
-    });
-    setSortBy("relevance");
-    setCurrentPage(1);
-  };
-
-  const activeFiltersCount = Object.values(filters).filter(Boolean).length;
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Discover Talents
-          </h1>
-          <p className="text-gray-600">
-            Search across profiles, skills, and projects to find the perfect
-            match
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
-                type="text"
-                placeholder="Search by name, skills, projects, technologies..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              />
-            </div>
-
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2 border rounded-lg flex items-center gap-2 transition-colors ${
-                showFilters
-                  ? "bg-teal-50 border-teal-500 text-teal-700"
-                  : "border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              <Filter className="h-5 w-5" />
-              Filters
-              {activeFiltersCount > 0 && (
-                <span className="bg-teal-600 text-white text-xs px-1.5 py-0.5 rounded-full">
-                  {activeFiltersCount}
-                </span>
-              )}
-            </button>
-          </div>
-
-          {/* Advanced Filters */}
-          {showFilters && (
-            <div className="mt-4 pt-4 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              <select
-                value={filters.major}
-                onChange={(e) => handleFilterChange("major", e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="">All Majors</option>
-                {searchResult?.filters.majors.map((major) => (
-                  <option key={major} value={major}>
-                    {major}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filters.location}
-                onChange={(e) => handleFilterChange("location", e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="">All Locations</option>
-                {searchResult?.filters.locations.map((location) => (
-                  <option key={location} value={location}>
-                    {location}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filters.skill}
-                onChange={(e) => handleFilterChange("skill", e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="">Any Skill</option>
-                {searchResult?.filters.popularSkills.map((skill) => (
-                  <option key={skill} value={skill}>
-                    {skill}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filters.technology}
-                onChange={(e) =>
-                  handleFilterChange("technology", e.target.value)
-                }
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="">Any Technology</option>
-                {searchResult?.filters.popularTechnologies.map((tech) => (
-                  <option key={tech} value={tech}>
-                    {tech}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="relevance">Most Relevant</option>
-                <option value="name">Name (A-Z)</option>
-                <option value="skills">Most Skills</option>
-                <option value="projects">Most Projects</option>
-                <option value="endorsements">Most Endorsed</option>
-              </select>
-            </div>
-          )}
-
-          {/* Active Filters & Clear */}
-          {(activeFiltersCount > 0 || searchQuery) && (
-            <div className="mt-4 flex items-center justify-between">
-              <div className="flex flex-wrap gap-2">
-                {searchQuery && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
-                    Search: "{searchQuery}"
-                    <button onClick={() => setSearchQuery("")}>
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                )}
-                {Object.entries(filters).map(
-                  ([key, value]) =>
-                    value && (
-                      <span
-                        key={key}
-                        className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
-                      >
-                        {key}: {value}
-                        <button onClick={() => handleFilterChange(key, "")}>
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    )
-                )}
-              </div>
-
-              <button
-                onClick={clearAllFilters}
-                className="text-sm text-red-600 hover:text-red-700"
-              >
-                Clear all
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Results Stats */}
-        {searchResult && (
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-gray-600">
-              Found{" "}
-              <span className="font-semibold">
-                {searchResult.metadata.total}
-              </span>{" "}
-              talents
-              {searchQuery && ` matching "${searchQuery}"`}
-            </p>
-
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span>
-                Page {searchResult.metadata.page} of{" "}
-                {searchResult.metadata.totalPages}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Results Grid */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg p-6 animate-pulse">
-                <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded mb-3"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3 mx-auto"></div>
-              </div>
-            ))}
-          </div>
-        ) : searchResult?.talents.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg">
-            <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No talents found
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Try adjusting your search or filters
-            </p>
-            <button
-              onClick={clearAllFilters}
-              className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors"
-            >
-              Clear All Filters
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {searchResult?.talents.map((talent) => (
-              <EnhancedTalentCard
-                key={talent._id}
-                talent={talent}
-                onClick={() => router.push(`/talents/${talent._id}`)}
-                searchQuery={searchQuery}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {searchResult && searchResult.metadata.totalPages > 1 && (
-          <div className="mt-8 flex justify-center">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={!searchResult.metadata.hasPrevPage}
-                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-
-              <div className="flex gap-1">
-                {generatePageNumbers(
-                  currentPage,
-                  searchResult.metadata.totalPages
-                ).map((pageNum, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() =>
-                      pageNum !== "..." && setCurrentPage(parseInt(pageNum))
-                    }
-                    disabled={pageNum === "..."}
-                    className={`px-3 py-1 rounded-lg ${
-                      currentPage === parseInt(pageNum)
-                        ? "bg-teal-600 text-white"
-                        : pageNum === "..."
-                        ? "cursor-default"
-                        : "border border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                disabled={!searchResult.metadata.hasNextPage}
-                className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Enhanced Talent Card with skill and project info
-function EnhancedTalentCard({
-  talent,
+// Components
+const ProfileCard = ({
+  student,
   onClick,
-  searchQuery,
 }: {
-  talent: any;
+  student: Student;
   onClick: () => void;
-  searchQuery: string;
-}) {
-  const highlightMatch = (text: string) => {
-    if (!searchQuery || !text) return text;
-
-    const regex = new RegExp(`(${searchQuery})`, "gi");
-    const parts = text.split(regex);
-
-    return parts.map((part, i) =>
-      regex.test(part) ? (
-        <mark key={i} className="bg-yellow-200">
-          {part}
-        </mark>
-      ) : (
-        part
-      )
-    );
-  };
-
+}) => {
   return (
     <div
+      className="bg-white rounded-xl overflow-hidden shadow-md transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg cursor-pointer"
       onClick={onClick}
-      className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-all cursor-pointer group"
     >
-      <div className="text-center">
-        {/* Avatar */}
-        <div className="w-24 h-24 mx-auto mb-4 relative">
-          {talent.avatar ? (
-            <img
-              src={talent.avatar}
-              alt={talent.fullname}
-              className="w-full h-full rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white text-2xl font-bold">
-              {talent.fullname
-                .split(" ")
-                .map((n: string) => n[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2)}
-            </div>
-          )}
+      <div className="relative">
+        <div
+          className={`h-32 bg-gradient-to-r ${student.gradient} opacity-90`}
+        ></div>
+        <div className="absolute top-16 left-1/2 transform -translate-x-1/2">
+          <img
+            src={student.image}
+            alt={student.name}
+            className="w-24 h-24 rounded-full border-4 border-white object-cover"
+          />
+        </div>
+      </div>
+      <div className="pt-16 pb-6 px-6">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="text-lg font-bold font-heading">{student.name}</h3>
+          <span
+            className={`${
+              student.status === "available"
+                ? "bg-teal bg-opacity-10 text-teal"
+                : "bg-gold bg-opacity-10 text-gold"
+            } text-xs px-2 py-1 rounded-full`}
+          >
+            {student.status === "available" ? "Available" : "Top Talent"}
+          </span>
+        </div>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+          {student.title}
+        </p>
 
-          {/* Stats badges */}
-          <div className="absolute -bottom-2 left-0 right-0 flex justify-center gap-1">
-            {talent.skills?.length > 0 && (
-              <div className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Award className="h-3 w-3" />
-                {talent.skills.length}
-              </div>
-            )}
-            {talent.projects?.length > 0 && (
-              <div className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Briefcase className="h-3 w-3" />
-                {talent.projects.length}
-              </div>
+        <div className="mb-4 overflow-x-auto flex pb-1 no-scrollbar">
+          <div className="flex space-x-2">
+            {student.skills.slice(0, 3).map((skill, index) => (
+              <span
+                key={index}
+                className="whitespace-nowrap bg-softgray px-3 py-1 rounded-full text-xs"
+              >
+                {skill}
+              </span>
+            ))}
+            {student.skills.length > 3 && (
+              <span className="whitespace-nowrap bg-softgray px-3 py-1 rounded-full text-xs">
+                +{student.skills.length - 3}
+              </span>
             )}
           </div>
         </div>
 
-        {/* Name */}
-        <h3 className="font-semibold text-lg text-gray-900 mb-1">
-          {highlightMatch(talent.fullname)}
-        </h3>
-
-        {/* Major */}
-        {talent.major && (
-          <p className="text-sm text-gray-600 mb-2">
-            {highlightMatch(talent.major)}
-          </p>
-        )}
-
-        {/* University & Location */}
-        <div className="space-y-1 mb-3">
-          {talent.university && (
-            <div className="flex items-center justify-center text-xs text-gray-500">
-              <GraduationCap className="h-3 w-3 mr-1" />
-              <span>{highlightMatch(talent.university)}</span>
-            </div>
-          )}
-          {talent.location && (
-            <div className="flex items-center justify-center text-xs text-gray-500">
-              <MapPin className="h-3 w-3 mr-1" />
-              <span>{talent.location}</span>
-            </div>
-          )}
+        <div className="flex items-center text-sm text-gray-600 mb-6">
+          <FaLocationDot className="mr-2 flex-shrink-0" />
+          <span className="truncate">{student.university}</span>
         </div>
 
-        {/* Top Skills */}
-        {talent.skills?.length > 0 && (
-          <div className="mb-3">
-            <div className="flex flex-wrap justify-center gap-1">
-              {talent.skills.slice(0, 3).map((skill: any, idx: number) => (
-                <span
-                  key={idx}
-                  className="text-xs bg-gray-100 px-2 py-0.5 rounded"
-                >
-                  {highlightMatch(skill.name)}
-                </span>
-              ))}
-              {talent.skills.length > 3 && (
-                <span className="text-xs text-gray-500">
-                  +{talent.skills.length - 3}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Bio Preview */}
-        {talent.bio && (
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-            {highlightMatch(talent.bio)}
-          </p>
-        )}
-
-        {/* View Profile Button */}
-        <button className="text-teal-600 text-sm font-medium group-hover:text-teal-700">
-          View Profile →
+        <button className="w-full py-2 bg-navy text-white rounded-lg hover:bg-opacity-90">
+          View Profile
         </button>
       </div>
     </div>
   );
-}
+};
 
-// Helper function to generate page numbers with ellipsis
-function generatePageNumbers(current: number, total: number): string[] {
-  if (total <= 7) {
-    return Array.from({ length: total }, (_, i) => (i + 1).toString());
+const FilterModal = ({ onClose }: { onClose: () => void }) => {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-md overflow-hidden">
+        <div className="flex justify-between items-center p-4 border-b">
+          <h3 className="text-lg font-bold font-heading">Filter Talents</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-navy">
+            <FaXmark />
+          </button>
+        </div>
+        <div className="p-4 max-h-[70vh] overflow-y-auto">
+          {/* Filter content remains the same */}
+        </div>
+        <div className="p-4 border-t bg-softgray flex justify-between">
+          <button className="px-4 py-2 border border-gray-300 rounded-lg text-navy">
+            Reset
+          </button>
+          <button className="px-4 py-2 bg-teal text-white rounded-lg">
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProfileModal = ({
+  student,
+  activeTab,
+  onTabChange,
+  onClose,
+  onContact,
+}: {
+  student: Student;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  onClose: () => void;
+  onContact: () => void;
+}) => {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+   <div className="flex justify-between items-center p-4 border-b">
+          <div className="flex items-center">
+            <button onClick={onClose} className="mr-4 text-navy">
+              <FaArrowLeft />
+            </button>
+            <h3 className="text-lg font-bold font-heading">Talent Profile</h3>
+          </div>
+          <button onClick={onClose} className="text-gray-500 hover:text-navy">
+            <FaXmark />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-grow">
+          {/* Hero Section */}
+          <div className="relative">
+            <div className={`h-48 bg-gradient-to-r ${student.gradient}`}></div>
+            <div className="absolute top-32 left-4 md:left-10">
+              <img
+                src={student.image}
+                alt="Profile"
+                className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white object-cover"
+              />
+            </div>
+          </div>
+
+          <div className="pt-16 md:pt-20 px-4 md:px-10 pb-10">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
+              <div className="mb-4 md:mb-0">
+                <h2 className="text-xl md:text-2xl font-bold font-heading">
+                  {student.name}
+                </h2>
+                <p className="text-gray-600">{student.title}</p>
+              </div>
+              <button
+                onClick={onContact}
+                className="bg-teal text-white px-6 py-2 rounded-lg hover:bg-opacity-90 flex items-center"
+              >
+                <FaEnvelope className="mr-2" />
+                Contact
+              </button>
+            </div>
+
+            <div className="flex flex-wrap gap-4 mb-8">
+              {student.location && (
+                <div className="flex items-center text-sm text-gray-600">
+                  <FaLocationDot className="mr-2" />
+                  <span>{student.location}</span>
+                </div>
+              )}
+              <div className="flex items-center text-sm text-gray-600">
+                <FaGraduationCap className="mr-2" />
+                <span>{student.university}</span>
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <FaBuildingColumns className="mr-2" />
+                <span>Class of {student.graduationYear}</span>
+              </div>
+            </div>
+
+            {/* Contact Links */}
+            <div className="flex flex-wrap gap-4 mb-8">
+              {student.website && (
+                <a
+                  href={student.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-sm text-teal hover:underline"
+                >
+                  <FaGlobe className="mr-2" />
+                  Website
+                </a>
+              )}
+              {student.github && (
+                <a
+                  href={student.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-sm text-teal hover:underline"
+                >
+                  <FaGithub className="mr-2" />
+                  GitHub
+                </a>
+              )}
+              {student.linkedin && (
+                <a
+                  href={student.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-sm text-teal hover:underline"
+                >
+                  <FaLinkedin className="mr-2" />
+                  LinkedIn
+                </a>
+              )}
+              {student.phone && (
+                <a
+                  href={`tel:${student.phone}`}
+                  className="flex items-center text-sm text-teal hover:underline"
+                >
+                  <FaPhone className="mr-2" />
+                  {student.phone}
+                </a>
+              )}
+            </div>
+
+            {/* Tabs */}
+            <div className="border-b mb-6">
+              <div className="flex space-x-4 md:space-x-8 overflow-x-auto">
+                <button
+                  className={`pb-3 ${
+                    activeTab === "overview"
+                      ? "border-b-2 border-teal text-navy font-medium"
+                      : "text-gray-500 hover:text-navy"
+                  }`}
+                  onClick={() => onTabChange("overview")}
+                >
+                  Overview
+                </button>
+                <button
+                  className={`pb-3 ${
+                    activeTab === "skills"
+                      ? "border-b-2 border-teal text-navy font-medium"
+                      : "text-gray-500 hover:text-navy"
+                  }`}
+                  onClick={() => onTabChange("skills")}
+                >
+                  Skills
+                </button>
+              </div>
+            </div>
+
+            {/* Overview Tab Content */}
+            {activeTab === "overview" && (
+              <div className="mb-10">
+                <h3 className="text-lg font-bold font-heading mb-4">
+                  About Me
+                </h3>
+                <p className="text-gray-700 mb-6">
+                  {student.bio ||
+                    `I'm a passionate ${student.major} student at ${student.university}. I'm always eager to learn new technologies and apply my skills in real-world projects.`}
+                </p>
+
+                <h3 className="text-lg font-bold font-heading mb-4">
+                  Education
+                </h3>
+                <div className="mb-6">
+                  <div className="flex items-start">
+                    <div className="bg-navy text-white p-2 rounded-lg mr-4">
+                      <FaBuildingColumns />
+                    </div>
+                    <div>
+                      <h4 className="font-medium">{student.university}</h4>
+                      <p className="text-gray-600 text-sm">{student.major}</p>
+                      <p className="text-gray-500 text-sm">
+                        Expected Graduation: {student.graduationYear}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <h3 className="text-lg font-bold font-heading mb-4">
+                  Skills & Technologies
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {student.skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="bg-softgray px-3 py-1 md:px-4 md:py-2 rounded-full text-sm"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Skills Tab Content */}
+            {activeTab === "skills" && (
+              <div className="mb-10">
+                <h3 className="text-lg font-bold font-heading mb-4">
+                  Technical Skills
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  {student.skills.map((skill, index) => (
+                    <div key={index} className="bg-softgray p-4 rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">{skill}</span>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <FaStar
+                              key={i}
+                              className={`text-sm ${
+                                i < Math.floor(Math.random() * 3) + 3
+                                  ? "text-gold"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-teal h-2 rounded-full"
+                          style={{
+                            width: `${Math.floor(Math.random() * 40) + 60}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <h3 className="text-lg font-bold font-heading mb-4">
+                  Major Focus
+                </h3>
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  <h4 className="font-medium text-lg mb-2">{student.major}</h4>
+                  <p className="text-gray-600">
+                    Specialized knowledge and hands-on experience in{" "}
+                    {student.major.toLowerCase()}, with a focus on practical
+                    applications and innovative solutions.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  );
+};
+
+const ContactModal = ({
+  student,
+  onClose,
+}: {
+  student: Student;
+  onClose: () => void;
+}) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Contact form submitted:", formData);
+    alert("Message sent successfully!");
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg w-full max-w-md overflow-hidden">
+        
+
+        <div className="flex justify-between items-center p-4 border-b">
+          <h3 className="text-lg font-bold font-heading">
+            Contact {student.name}
+          </h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-navy">
+            <FaXmark />
+          </button>
+        </div>
+        <div className="p-6">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Your Name *
+              </label>
+              <input
+                type="text"
+                name="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
+                placeholder="Enter your name"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Your Email *
+              </label>
+              <input
+                type="email"
+                name="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal"
+                placeholder="Enter your email"
+              />
+            </div>
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2">
+                Message *
+              </label>
+              <textarea
+                name="message"
+                required
+                value={formData.message}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal h-32"
+                placeholder="Describe your project or opportunity"
+              ></textarea>
+            </div>
+            <div className="flex space-x-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 py-3 border border-gray-300 text-navy rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 py-3 bg-teal text-white rounded-lg hover:bg-opacity-90"
+              >
+                Send Message
+              </button>
+            </div>
+          </form>
+
+          {/* Quick Contact Options */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-sm text-gray-600 mb-3">Or contact directly:</p>
+            <div className="flex flex-wrap gap-2">
+              {student.email && (
+                <a
+                  href={`mailto:${student.email}`}
+                  className="flex items-center text-sm text-teal hover:underline"
+                >
+                  <FaEnvelope className="mr-1" />
+                  Email
+                </a>
+              )}
+              {student.phone && (
+                <a
+                  href={`tel:${student.phone}`}
+                  className="flex items-center text-sm text-teal hover:underline"
+                >
+                  <FaPhone className="mr-1" />
+                  Call
+                </a>
+              )}
+              {student.linkedin && (
+                <a
+                  href={student.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-sm text-teal hover:underline"
+                >
+                  <FaLinkedin className="mr-1" />
+                  LinkedIn
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+// Main Component
+const TalentPage = () => {
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
+  // Fetch talents from API
+  useEffect(() => {
+    const fetchTalents = async () => {
+      try {
+        const response = await fetch("/api/talents");
+        if (!response.ok) {
+          throw new Error("Failed to fetch talents");
+        }
+        const data = await response.json();
+
+        const transformedStudents: Student[] = data.map(
+          (student: any, index: number) => ({
+            id: student._id,
+            name: student.fullname,
+            title: `${student.major} Student${
+              student.bio ? ` – ${student.bio}` : ""
+            }`,
+            status: student.status === "pending" ? "available" : student.status,
+            skills: extractSkills(student),
+            university: student.institution,
+            image:
+              student.avatar ||
+              `https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-${
+                (index % 6) + 1
+              }.jpg`,
+            gradient: getRandomGradient(index),
+            location: student.location,
+            graduationYear: student.graduationYear,
+            email: student.email,
+            phone: student.phone,
+            website: student.website,
+            github: student.github,
+            linkedin: student.linkedin,
+            bio: student.bio,
+            major: student.major,
+            emailVerified: student.emailVerified,
+            createdAt: student.createdAt,
+          })
+        );
+
+        setStudents(transformedStudents);
+        if (transformedStudents.length > 0) {
+          setSelectedStudent(transformedStudents[0]);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTalents();
+  }, []);
+
+  const openProfile = useCallback((student: Student) => {
+    setSelectedStudent(student);
+    setShowProfileModal(true);
+  }, []);
+
+  const openContact = useCallback(() => {
+    setShowProfileModal(false);
+    setShowContactModal(true);
+  }, []);
+
+  // Memoized student cards to prevent unnecessary re-renders
+  const studentCards = useMemo(
+    () =>
+      students.map((student) => (
+        <ProfileCard
+          key={student.id}
+          student={student}
+          onClick={() => openProfile(student)}
+        />
+      )),
+    [students, openProfile]
+  );
+
+  if (loading) {
+    return (
+      <div className="bg-softgray text-navy font-sans min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal mx-auto mb-4"></div>
+          <p>Loading talents...</p>
+        </div>
+      </div>
+    );
   }
 
-  const pages: string[] = [];
-
-  if (current <= 4) {
-    for (let i = 1; i <= 5; i++) pages.push(i.toString());
-    pages.push("...");
-    pages.push(total.toString());
-  } else if (current >= total - 3) {
-    pages.push("1");
-    pages.push("...");
-    for (let i = total - 4; i <= total; i++) pages.push(i.toString());
-  } else {
-    pages.push("1");
-    pages.push("...");
-    for (let i = current - 1; i <= current + 1; i++) pages.push(i.toString());
-    pages.push("...");
-    pages.push(total.toString());
+  if (error) {
+    return (
+      <div className="bg-softgray text-navy font-sans min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">Error: {error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-teal text-white px-4 py-2 rounded-lg hover:bg-opacity-90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
-  return pages;
-}
+  return (
+    <div className="bg-softgray text-navy font-sans min-h-screen">
+      <Head>
+        <title>CONCESTalent - National Talent Directory</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Head>
+
+      {/* Header Navigation */}
+      <header className="bg-white sticky top-0 z-50 shadow-sm px-4 md:px-8 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center">
+            <a
+              href="./hub.html"
+              className="text-2xl font-bold text-navy font-heading mr-10"
+            >
+              <span className="text-navy">CONCES</span>
+              <span className="text-teal">Talent</span>
+            </a>
+            <div className="hidden md:block relative w-72">
+              <input
+                type="text"
+                placeholder="Search talents, skills..."
+                className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+              />
+              <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-6">
+            <button
+              onClick={() => setShowFilterModal(true)}
+              className="flex items-center space-x-2 text-navy hover:text-teal"
+            >
+              <FaSliders />
+              <span className="hidden md:inline">Filters</span>
+            </button>
+            <div className="hidden md:flex items-center space-x-2 text-navy hover:text-teal cursor-pointer">
+              <FaBell />
+            </div>
+            <div className="flex items-center space-x-2 text-navy hover:text-teal cursor-pointer">
+              <FaCircleUser className="text-xl" />
+              <span className="hidden md:inline">Account</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Search Bar */}
+      <div className="md:hidden px-4 py-3 bg-white border-t border-gray-200">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search talents, skills..."
+            className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
+          />
+          <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-10">
+        {/* Page Title and Filters Summary */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold font-heading mb-2">
+              National Talent Directory
+            </h1>
+            <p className="text-gray-600">
+              Discover exceptional student talents across all disciplines (
+              {students.length} talents found)
+            </p>
+          </div>
+          <div className="mt-4 md:mt-0 flex items-center space-x-3">
+            <div className="relative">
+              <select className="appearance-none bg-white border border-gray-300 rounded-lg py-2 pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-teal">
+                <option>Newest</option>
+                <option>Highest Rated</option>
+                <option>Most Popular</option>
+              </select>
+              <FaChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+            </div>
+            <button className="hidden md:flex items-center space-x-2 text-navy bg-white py-2 px-4 rounded-lg border border-gray-300 hover:bg-softgray">
+              <FaTableCellsLarge />
+              <span>Grid</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Tags */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <div className="bg-white rounded-full py-1 px-4 text-sm flex items-center space-x-2 border border-gray-200">
+            <span>All Disciplines</span>
+            <FaXmark className="text-xs cursor-pointer" />
+          </div>
+          <div className="bg-white rounded-full py-1 px-4 text-sm flex items-center space-x-2 border border-gray-200">
+            <span>Available Now</span>
+            <FaXmark className="text-xs cursor-pointer" />
+          </div>
+          <button className="text-teal text-sm hover:underline">
+            Clear All
+          </button>
+        </div>
+
+        {/* Profile Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {studentCards}
+        </div>
+
+        {/* Pagination */}
+        <div className="mt-10 flex justify-center">
+          <div className="inline-flex rounded-md shadow-sm">
+            <button className="px-4 py-2 text-sm font-medium text-navy bg-white border border-gray-300 rounded-l-lg hover:bg-softgray">
+              <FaChevronLeft className="mr-1" />
+              Previous
+            </button>
+            <button className="px-4 py-2 text-sm font-medium text-white bg-navy border border-navy">
+              1
+            </button>
+            <button className="px-4 py-2 text-sm font-medium text-navy bg-white border-t border-b border-gray-300 hover:bg-softgray">
+              2
+            </button>
+            <button className="px-4 py-2 text-sm font-medium text-navy bg-white border-t border-b border-gray-300 hover:bg-softgray">
+              3
+            </button>
+            <button className="px-4 py-2 text-sm font-medium text-navy bg-white border border-gray-300 rounded-r-lg hover:bg-softgray">
+              Next <FaChevronRight className="ml-1" />
+            </button>
+          </div>
+        </div>
+      </main>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50">
+        <div className="flex justify-around">
+          <button className="flex flex-col items-center text-navy">
+            <FaHouse className="text-lg" />
+            <span className="text-xs mt-1">Home</span>
+          </button>
+          <button className="flex flex-col items-center text-navy">
+            <FaMagnifyingGlass className="text-lg" />
+            <span className="text-xs mt-1">Search</span>
+          </button>
+          <button className="flex flex-col items-center text-teal">
+            <FaUserGroup className="text-lg" />
+            <span className="text-xs mt-1">Talents</span>
+          </button>
+          <button className="flex flex-col items-center text-navy">
+            <FaUser className="text-lg" />
+            <span className="text-xs mt-1">Profile</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {showFilterModal && (
+        <FilterModal onClose={() => setShowFilterModal(false)} />
+      )}
+
+      {showProfileModal && selectedStudent && (
+        <ProfileModal
+          student={selectedStudent}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onClose={() => setShowProfileModal(false)}
+          onContact={openContact}
+        />
+      )}
+
+      {showContactModal && selectedStudent && (
+        <ContactModal
+          student={selectedStudent}
+          onClose={() => {
+            setShowContactModal(false);
+            setShowProfileModal(true);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+export default TalentPage;

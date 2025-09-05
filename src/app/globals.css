@@ -3,10 +3,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-
-        --navy: #0B1D3A;
+         --navy: #0B1D3A;
         --gold: #F4B400;
-        --softgray: #F7F7F7;
+        --teal: #1ABC9C;
+        --softgray: #F7F7F7
+      
     
 }
 
@@ -15,6 +16,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-teal: var(--teal);
+  
   --color-navy: var(--navy);
   --color-gold: var(--gold);
   --color-softgray: var(--softgray);

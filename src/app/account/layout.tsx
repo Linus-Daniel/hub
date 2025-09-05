@@ -2,10 +2,10 @@ import React, { ReactNode } from 'react'
 import "../globals.css"
 import Layout from '@/components/accont/Layout'
 
-function layout({children}:{children:ReactNode}) {
+function RootLayout({children}:{children:ReactNode}) {
   return (
     <html>
-        <body className='antialise'>
+        <body>
             <Layout>
                 {children}
             </Layout>
@@ -14,4 +14,4 @@ function layout({children}:{children:ReactNode}) {
   )
 }
 
-export default layout
+export default RootLayout

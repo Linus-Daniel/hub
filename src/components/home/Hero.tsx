@@ -1,5 +1,6 @@
 "use client"
 import Image from "next/image";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 
 export default function HeroSection() {
@@ -42,19 +43,21 @@ export default function HeroSection() {
             design talents
           </p>
           <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 justify-center">
-            <button
+            <Link
+            href={"/auth"}
               id="join-btn"
               className="bg-gold text-navy px-8 py-4 rounded-lg font-montserrat font-semibold text-lg hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105 group relative overflow-hidden section-clickable"
             >
               <span className="relative z-10">Join the Directory</span>
               <span className="absolute inset-0 bg-white/20 transform scale-0 rounded-full group-hover:scale-150 transition-transform duration-500"></span>
-            </button>
-            <button
+            </Link>
+            <Link
               id="explore-btn"
+              href={"/talents"}
               className="bg-white/10 backdrop-blur-sm text-white border border-white/30 px-8 py-4 rounded-lg font-montserrat font-semibold text-lg hover:bg-white/20 transition-all duration-300 transform hover:scale-105 section-clickable"
             >
               Explore Talents
-            </button>
+            </Link>
           </div>
         </div>
       </div>

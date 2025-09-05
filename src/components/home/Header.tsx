@@ -34,7 +34,7 @@ const Navigation = () => {
     { name: "Why", href: "#why" },
     { name: "Who", href: "#who" },
     { name: "Benefits", href: "#benefits" },
-    { name: "Join Us", href: "#join" },
+    { name: "Join Us", href: "  auth" },
   ];
 
   const handleSmoothScroll = (e:FormEvent, href:string) => {
@@ -63,30 +63,9 @@ const Navigation = () => {
             <Link href="/" className="font-montserrat font-bold text-xl mr-8">
               CONCES
             </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-6">
-              {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  onClick={(e) => handleSmoothScroll(e, item.href)}
-                  className="text-navy hover:text-gold transition-colors duration-300 cursor-pointer"
-                >
-                  {item.name}
-                </a>
-              ))}
-            </div>
           </div>
 
           <div className="flex items-center">
-            <Link
-              href="/auth"
-              className="bg-gold text-navy px-4 py-2 rounded-lg hover:bg-yellow-500 transition-colors duration-300 font-medium"
-            >
-              Join the Directory
-            </Link>
-
             {/* Mobile Menu Button */}
             <button
               className="md:hidden ml-4"
@@ -106,6 +85,20 @@ const Navigation = () => {
                 />
               </svg>
             </button>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex space-x-6">
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                onClick={(e) => handleSmoothScroll(e, item.href)}
+                className="text-navy hover:text-gold transition-colors duration-300 cursor-pointer"
+              >
+                {item.name}
+              </a>
+            ))}
           </div>
         </div>
       </nav>

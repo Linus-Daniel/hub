@@ -119,3 +119,4 @@ const UserSettingsSchema = new Schema<ITalentUser>(
 // ✅ Prevent OverwriteModelError in Next.js hot reload
 export const TalentUser =
   models.TalentUser || model<ITalentUser>("TalentUser", UserSettingsSchema);
+1
