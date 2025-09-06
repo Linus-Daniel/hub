@@ -25,6 +25,7 @@ import {
   FaLinkedin,
   FaPhone,
 } from "react-icons/fa6";
+import Link from "next/link";
 
 // Types
 interface Student {
@@ -167,9 +168,9 @@ const ProfileCard = ({
           <span className="truncate">{student.university}</span>
         </div>
 
-        <button className="w-full py-2 bg-navy text-white rounded-lg hover:bg-opacity-90">
+        <Link href={`/talents/${student?.id}`} className="w-full py-2 bg-navy text-white flex items-center justify-center rounded-lg hover:bg-opacity-90">
           View Profile
-        </button>
+        </Link>
       </div>
     </div>
   );

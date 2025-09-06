@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Head from "next/head";
 import Image from "next/image";
@@ -9,31 +9,15 @@ import {
   Mail,
   MapPin,
   GraduationCap,
-  Calendar,
   Globe,
   Github,
   Linkedin,
-  Star,
   Briefcase,
   Code,
   Award,
   ExternalLink,
   X,
-  Send,
-  MessageCircle,
-  ThumbsUp,
-  Bookmark,
-  Share,
-  Download,
-  ChevronDown,
-  ChevronUp,
-  FileText,
-  Users,
-  Building,
   Phone,
-  Heart,
-  Paperclip,
-  Smile,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -92,7 +76,6 @@ export default function TalentProfilePage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
@@ -100,11 +83,6 @@ export default function TalentProfilePage() {
     message: "",
   });
   const [sending, setSending] = useState(false);
-  const [chatStarted, setChatStarted] = useState(false);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const messageInputRef = useRef<HTMLInputElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Sample testimonials
   const testimonials = [
@@ -138,14 +116,6 @@ export default function TalentProfilePage() {
     fetchTalentData();
   }, [talentId]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const fetchTalentData = async () => {
     try {
       // Fetch talent profile
@@ -156,8 +126,10 @@ export default function TalentProfilePage() {
 
       // Fetch talent's skills
       const skillsRes = await fetch(`/api/talents/${talentId}/skills`);
+      console.log(skillsRes);
       if (skillsRes.ok) {
         const skillsData = await skillsRes.json();
+        console.log(skills, "Skills");
         setSkills(skillsData);
       }
 
@@ -198,69 +170,6 @@ export default function TalentProfilePage() {
       toast.error("Failed to send message. Please try again.");
     } finally {
       setSending(false);
-    }
-  };
-
-  const startChat = () => {
-    setChatStarted(true);
-    setIsMobileChatOpen(true);
-
-    setTimeout(() => {
-      setIsTyping(true);
-
-      setTimeout(() => {
-        setIsTyping(false);
-        setMessages([
-          {
-            id: 1,
-            sender: "talent",
-            text: "Hi there! Thanks for reaching out. How can I help with your project today?",
-            time: new Date().toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-          },
-        ]);
-      }, 2000);
-    }, 500);
-  };
-
-  const sendMessage = () => {
-    const messageText = messageInputRef.current?.value.trim();
-    if (messageText && messageInputRef.current) {
-      const newMessage = {
-        id: messages.length + 2,
-        sender: "user",
-        text: messageText,
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      };
-
-      setMessages([...messages, newMessage]);
-      messageInputRef.current.value = "";
-
-      setTimeout(() => {
-        setIsTyping(true);
-
-        setTimeout(() => {
-          setIsTyping(false);
-          setMessages([
-            ...messages,
-            newMessage,
-            {
-              id: messages.length + 3,
-              sender: "talent",
-              text: "Thanks for your message! I'll get back to you soon.",
-              time: new Date().toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              }),
-            },
-          ]);
-        }, 2000);
-      }, 1000);
     }
   };
 
@@ -433,13 +342,6 @@ export default function TalentProfilePage() {
                       <Mail className="h-4 w-4" />
                       <span>Hire Me</span>
                     </button>
-                    <button
-                      onClick={startChat}
-                      className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition lg:hidden"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      <span>Message</span>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -573,10 +475,6 @@ export default function TalentProfilePage() {
                                       >
                                         {skill.level}
                                       </span>
-                                    </div>
-                                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                                      <ThumbsUp className="h-4 w-4" />
-                                      <span>{skill.endorsements}</span>
                                     </div>
                                   </div>
 
@@ -743,176 +641,9 @@ export default function TalentProfilePage() {
             </div>
           </div>
 
-          {/* Right Column - Chat Interface (Desktop) */}
-          <div className="lg:w-1/3 hidden lg:block">
-            <div className="bg-white rounded-xl shadow-sm h-fit sticky top-6">
-              {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                <div className="flex items-center">
-                  {talent.avatar ? (
-                    <img
-                      src={talent.avatar}
-                      alt={talent.fullname}
-                      className="w-10 h-10 rounded-full mr-3"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white font-bold mr-3">
-                      {talent.fullname
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .toUpperCase()
-                        .slice(0, 2)}
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      {talent.fullname}
-                    </h3>
-                    <div className="flex items-center text-sm text-green-600">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                      Online
-                    </div>
-                  </div>
-                </div>
-                <button className="text-gray-500 hover:text-gray-700 p-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Chat Messages Area */}
-              <div className="p-4 h-96 overflow-y-auto">
-                {!chatStarted ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center px-6">
-                    <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
-                      <MessageCircle className="text-2xl text-teal-600" />
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Start a conversation
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      Send {talent.fullname.split(" ")[0]} a message to discuss
-                      your project needs
-                    </p>
-                    <button
-                      onClick={startChat}
-                      className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
-                    >
-                      Start Chatting
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="text-center text-xs text-gray-500 my-2">
-                      Today,{" "}
-                      {new Date().toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-
-                    {messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex items-end mb-4 ${
-                          message.sender === "user" ? "justify-end" : ""
-                        }`}
-                      >
-                        {message.sender !== "user" && (
-                          <img
-                            src={
-                              talent.avatar ||
-                              "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg"
-                            }
-                            alt={talent.fullname}
-                            className="w-8 h-8 rounded-full mr-2"
-                          />
-                        )}
-                        {message.sender === "user" && (
-                          <span className="text-xs text-gray-500 mr-2">
-                            {message.time}
-                          </span>
-                        )}
-                        <div
-                          className={`max-w-[75%] ${
-                            message.sender === "user"
-                              ? "bg-gray-900 text-white rounded-t-xl rounded-bl-xl"
-                              : "bg-gray-100 text-gray-800 rounded-t-xl rounded-br-xl"
-                          } p-3`}
-                        >
-                          <p>{message.text}</p>
-                        </div>
-                        {message.sender !== "user" && (
-                          <span className="text-xs text-gray-500 ml-2">
-                            {message.time}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-
-                    {isTyping && (
-                      <div className="flex items-end mb-4">
-                        <img
-                          src={
-                            talent.avatar ||
-                            "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg"
-                          }
-                          alt={talent.fullname}
-                          className="w-8 h-8 rounded-full mr-2"
-                        />
-                        <div className="bg-gray-100 rounded-xl p-3 px-4">
-                          <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-75"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-150"></div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
-                )}
-              </div>
-
-              {/* Message Composer */}
-              {chatStarted && (
-                <div className="p-4 border-t border-gray-200">
-                  <div className="flex items-center space-x-2">
-                    <button className="p-2 text-gray-500 hover:text-gray-700">
-                      <Smile className="h-5 w-5" />
-                    </button>
-                    <button className="p-2 text-gray-500 hover:text-gray-700">
-                      <Paperclip className="h-5 w-5" />
-                    </button>
-                    <div className="flex-grow relative">
-                      <input
-                        type="text"
-                        placeholder="Type a message..."
-                        className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        ref={messageInputRef}
-                        onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-                      />
-                    </div>
-                    <button
-                      onClick={sendMessage}
-                      className="p-2 bg-teal-600 text-white rounded-full hover:bg-teal-700 transition"
-                    >
-                      <Send className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Social Links */}
-            <div className="bg-white rounded-xl shadow-sm p-6 mt-6">
+          {/* Right Column - Social Links */}
+          <div className="lg:w-1/3">
+            <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="font-semibold text-gray-900 mb-4">
                 Connect with {talent.fullname.split(" ")[0]}
               </h3>
@@ -955,181 +686,6 @@ export default function TalentProfilePage() {
           </div>
         </div>
       </main>
-
-      {/* Mobile Contact Button (Sticky) */}
-      <div className="fixed bottom-6 right-6 lg:hidden z-40">
-        <button
-          onClick={startChat}
-          className="w-14 h-14 rounded-full bg-teal-600 shadow-lg flex items-center justify-center text-white"
-        >
-          <MessageCircle className="h-6 w-6" />
-        </button>
-      </div>
-
-      {/* Mobile Chat Modal */}
-      <div
-        className={`fixed inset-0 bg-white z-50 transform ${
-          isMobileChatOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 ease-in-out lg:hidden`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Mobile Chat Header */}
-          <div className="p-4 border-b border-gray-200 flex items-center">
-            <button
-              onClick={() => setIsMobileChatOpen(false)}
-              className="mr-3 text-gray-700"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            {talent.avatar ? (
-              <img
-                src={talent.avatar}
-                alt={talent.fullname}
-                className="w-10 h-10 rounded-full mr-3"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white font-bold mr-3">
-                {talent.fullname
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2)}
-              </div>
-            )}
-            <div>
-              <h3 className="font-semibold text-gray-900">{talent.fullname}</h3>
-              <div className="flex items-center text-sm text-green-600">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                Online
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile Chat Messages */}
-          <div className="flex-grow p-4 overflow-y-auto">
-            {!chatStarted ? (
-              <div className="h-full flex flex-col items-center justify-center text-center px-6">
-                <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-4">
-                  <MessageCircle className="text-2xl text-teal-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Start a conversation
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Send {talent.fullname.split(" ")[0]} a message to discuss your
-                  project needs
-                </p>
-                <button
-                  onClick={startChat}
-                  className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
-                >
-                  Start Chatting
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="text-center text-xs text-gray-500 my-2">
-                  Today,{" "}
-                  {new Date().toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex items-end mb-4 ${
-                      message.sender === "user" ? "justify-end" : ""
-                    }`}
-                  >
-                    {message.sender !== "user" && (
-                      <img
-                        src={
-                          talent.avatar ||
-                          "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg"
-                        }
-                        alt={talent.fullname}
-                        className="w-8 h-8 rounded-full mr-2"
-                      />
-                    )}
-                    {message.sender === "user" && (
-                      <span className="text-xs text-gray-500 mr-2">
-                        {message.time}
-                      </span>
-                    )}
-                    <div
-                      className={`max-w-[75%] ${
-                        message.sender === "user"
-                          ? "bg-gray-900 text-white rounded-t-xl rounded-bl-xl"
-                          : "bg-gray-100 text-gray-800 rounded-t-xl rounded-br-xl"
-                      } p-3`}
-                    >
-                      <p>{message.text}</p>
-                    </div>
-                    {message.sender !== "user" && (
-                      <span className="text-xs text-gray-500 ml-2">
-                        {message.time}
-                      </span>
-                    )}
-                  </div>
-                ))}
-
-                {isTyping && (
-                  <div className="flex items-end mb-4">
-                    <img
-                      src={
-                        talent.avatar ||
-                        "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg"
-                      }
-                      alt={talent.fullname}
-                      className="w-8 h-8 rounded-full mr-2"
-                    />
-                    <div className="bg-gray-100 rounded-xl p-3 px-4">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-75"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-150"></div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Message Composer */}
-          {chatStarted && (
-            <div className="p-4 border-t border-gray-200">
-              <div className="flex items-center space-x-2">
-                <button className="p-2 text-gray-500 hover:text-gray-700">
-                  <Smile className="h-5 w-5" />
-                </button>
-                <button className="p-2 text-gray-500 hover:text-gray-700">
-                  <Paperclip className="h-5 w-5" />
-                </button>
-                <div className="flex-grow relative">
-                  <input
-                    type="text"
-                    placeholder="Type a message..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-teal-500"
-                    ref={messageInputRef}
-                    onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-                  />
-                </div>
-                <button
-                  onClick={sendMessage}
-                  className="p-2 bg-teal-600 text-white rounded-full hover:bg-teal-700 transition"
-                >
-                  <Send className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Contact Modal */}
       {isContactModalOpen && (
@@ -1227,7 +783,7 @@ export default function TalentProfilePage() {
                     <>Sending...</>
                   ) : (
                     <>
-                      <Send className="h-4 w-4" />
+                      <Mail className="h-4 w-4" />
                       Send Message
                     </>
                   )}

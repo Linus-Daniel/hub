@@ -11,7 +11,7 @@ export async function GET(
     await connectDB();
     const {id} = await params
 
-    const projects = await Project.find({ id }).sort({
+    const projects = await Project.find({ userId:id }).sort({
       createdAt: -1,
     });
 
