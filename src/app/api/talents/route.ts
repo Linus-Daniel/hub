@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
     // Fetch all users with public profiles
     const talents = await TalentUser.find({
       "privacy.profileVisible": true,
+      status: "approved",
     })
       .select("-password -resetPasswordToken -emailVerificationToken")
       .sort({ createdAt: -1 });

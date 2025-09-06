@@ -5,17 +5,8 @@ import { Plus, Search, Filter } from "lucide-react";
 import ProjectCard from "@/components/accont/ProjectCartd";
 import ProjectModal from "@/components/accont/ProjectModal";
 import { toast } from "sonner";
+import { Project } from "@/types";
 
-interface Project {
-  _id: string;
-  title: string;
-  description: string;
-  thumbnail?: string;
-  githubLink?: string;
-  link?: string;
-  technologies: string[];
-  createdAt: string;
-}
 
 export default function PortfolioPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -239,7 +230,7 @@ export default function PortfolioPage() {
                 setEditingProject(project);
                 setIsModalOpen(true);
               }}
-              onDelete={() => handleDelete(project._id)}
+              onDelete={() => handleDelete(project._id as string)}
             />
           ))}
         </div>

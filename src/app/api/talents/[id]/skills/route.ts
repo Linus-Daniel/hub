@@ -5,11 +5,11 @@ import { Skill } from "@/models/Skills";
 import { Types } from "mongoose";
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
-    const { id } = params;
+    const { id } = await params;
 
     const skills = await Skill.find({ user: new Types.ObjectId(id) });
 

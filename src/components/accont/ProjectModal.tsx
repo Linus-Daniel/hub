@@ -10,17 +10,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import ImageUpload from "../ImageUpload";
-
-// Types
-interface Project {
-  id?: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  githubLink: string;
-  link: string;
-  technologies: string[];
-}
+import { Project } from "@/types";
 
 interface ProjectModalProps {
   project: Project | null;

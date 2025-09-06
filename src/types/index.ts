@@ -39,18 +39,17 @@ export interface Portfolio {
   createdAt?: Date;
   updatedAt?: Date;
 }
-
 export interface Project {
   _id?: string;
   title: string;
   description: string;
+  thumbnail?: string;
+  githubLink?: string;
+  link?: string;
   technologies: string[];
-  imageUrl?: string;
-  projectUrl?: string;
-  githubUrl?: string;
-  startDate: Date;
-  endDate?: Date;
+  createdAt?: string;
 }
+
 
 export interface Achievement {
   _id?: string;

@@ -34,6 +34,7 @@ export interface ITalentUser extends Document {
   emailVerificationToken?: string;
   password: string;
   location: string;
+
   bio: string;
   website?: string;
   linkedin?: string;
@@ -41,8 +42,6 @@ export interface ITalentUser extends Document {
   profilePicture?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
-
-  // ✅ New status field
   status: "pending" | "approved" | "rejected";
 
   notifications: INotifications;

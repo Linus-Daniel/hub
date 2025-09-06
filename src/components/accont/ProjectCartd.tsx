@@ -1,18 +1,10 @@
 "use client";
 
+import { Project } from "@/types";
 import { Edit2, Trash2, ExternalLink, Github, Calendar } from "lucide-react";
 
 interface ProjectCardProps {
-  project: {
-    _id: string;
-    title: string;
-    description: string;
-    thumbnail?: string;
-    githubLink?: string;
-    link?: string;
-    technologies: string[];
-    createdAt: string;
-  };
+  project: Project;
   onEdit: () => void;
   onDelete: () => void;
 }
@@ -123,7 +115,7 @@ export default function ProjectCard({
 
           <div className="flex items-center text-xs text-gray-500">
             <Calendar className="h-3 w-3 mr-1" />
-            {new Date(project.createdAt).toLocaleDateString()}
+            {new Date(project.createdAt as string).toLocaleDateString() }
           </div>
         </div>
       </div>
