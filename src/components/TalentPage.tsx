@@ -134,8 +134,8 @@ const ProfileCard = ({
           <span
             className={`${
               student.status === "available"
-                ? "bg-teal bg-opacity-10 text-teal"
-                : "bg-gold bg-opacity-10 text-gold"
+                ? "bg-teal/10 text-teal"
+                : "bg-gold/10 text-gold"
             } text-xs px-2 py-1 rounded-full`}
           >
             {student.status === "available" ? "Available" : "Top Talent"}

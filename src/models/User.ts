@@ -115,7 +115,6 @@ const UserSettingsSchema = new Schema<ITalentUser>(
   { timestamps: true }
 );
 
-// ✅ Prevent OverwriteModelError in Next.js hot reload
-export const TalentUser =
-  models.TalentUser || model<ITalentUser>("TalentUser", UserSettingsSchema);
-1
+ const TalentUser = models.TalentUser || model<ITalentUser>("TalentUser", UserSettingsSchema);
+
+  export default TalentUser;

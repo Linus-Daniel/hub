@@ -1,7 +1,7 @@
 // /app/api/talents/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import { TalentUser } from "@/models/User";
+import  TalentUser  from "@/models/User";
 
 export async function GET(req: NextRequest) {
   try {

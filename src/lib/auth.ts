@@ -6,7 +6,7 @@ import GitHubProvider from "next-auth/providers/github";
 import LinkedInProvider from "next-auth/providers/linkedin";
 import bcrypt from "bcryptjs";
 import { loginSchema } from "@/lib/validators";
-import { TalentUser } from "@/models/User";
+import TalentUser  from "@/models/User";
 import { connectDB } from "./mongodb";
 import { NextAuthOptions } from "next-auth";
 

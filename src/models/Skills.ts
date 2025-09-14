@@ -15,7 +15,7 @@ interface ISkill extends Document {
 // Skill schema
 const SkillSchema = new Schema<ISkill>(
   {
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    user: { type: Schema.Types.ObjectId, ref: "TalentUser", required: true },
     category: { type: String, required: true }, // e.g. "Frontend Development"
     name: { type: String, required: true },     // e.g. "React"
     level: { type: String, enum: ["Beginner", "Intermediate", "Advanced", "Expert"], required: true },
