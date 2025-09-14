@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import { TalentUser } from "@/models/User";
+import  TalentUser  from "@/models/User";
 import { sendWelcomeEmail } from "@/lib/email/send-mail";
 
 export async function GET(request: NextRequest) {

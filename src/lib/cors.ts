@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 // hub/src/lib/cors.ts
 export function createOptionsResponse(origin?: string): Response {
@@ -16,14 +16,17 @@ export function createOptionsResponse(origin?: string): Response {
   });
 }
 
+
 export function addCorsHeaders(
   response: NextResponse,
-  origin?: string
+  request: NextRequest
 ): NextResponse {
-  const allowedOrigin =
-    origin || process.env.ADMIN_DOMAIN || "http://localhost:3000";
+  const origin =
+    request.headers.get("origin") ||
+    process.env.ADMIN_DOMAIN ||
+    "http://localhost:3000";
 
-  response.headers.set("Access-Control-Allow-Origin", allowedOrigin);
+  response.headers.set("Access-Control-Allow-Origin", origin);
   response.headers.set(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"

@@ -1,7 +1,7 @@
 // /app/api/talents/search/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import { TalentUser } from "@/models/User";
+import  TalentUser from "@/models/User";
 import { Skill } from "@/models/Skills";
 import { Project } from "@/models/Projects";
 

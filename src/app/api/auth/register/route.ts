@@ -4,7 +4,7 @@ import { registerSchema } from "@/lib/validators";
 import crypto from "crypto";
 import { sendVerificationEmail } from "@/lib/email/send-mail";
 import { connectDB } from "@/lib/mongodb";
-import { TalentUser } from "@/models/User";
+import  TalentUser  from "@/models/User";
 
 export async function POST(request: NextRequest) {
   try {

@@ -3,7 +3,7 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { connectDB } from "@/lib/mongodb";
-import { TalentUser } from "@/models/User";
+import  TalentUser  from "@/models/User";
 import { sendPasswordResetEmail } from "@/lib/email/send-mail";
 
 // Schemas
