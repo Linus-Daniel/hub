@@ -1,166 +1,119 @@
 "use client"
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Code,
-  Cpu,
-  Paintbrush,
-  TrendingUp,
-  Rocket,
-  Settings,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { Play } from "lucide-react";
 
-const WhoSection = () => {
-  const [visibleCards, setVisibleCards] = useState<number[]>([]);
-  const sectionRef = useRef(null);
+interface Slide {
+  src: string;
+  alt: string;
+}
 
-  const cards = [
+const IntroSection = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const slides: Slide[] = [
     {
-      icon: Code,
-      title: "Software Developers",
-      description:
-        "Backend, frontend, mobile, and full-stack developers building innovative applications and solutions.",
-      delay: 0,
+      src: "https://storage.googleapis.com/uxpilot-auth.appspot.com/bcfb72cf3a-fddb8803328c812a7c20.png",
+      alt: "Nigerian female engineering student working on robotics project in university lab, focused and innovative",
     },
     {
-      icon: Cpu,
-      title: "Hardware Engineers",
-      description:
-        "Electrical, electronic, and robotics engineers creating tangible solutions to real-world problems.",
-      delay: 100,
+      src: "https://storage.googleapis.com/uxpilot-auth.appspot.com/9f7cfb852f-c197c168712a610cd2d8.png",
+      alt: "Group of Nigerian students collaborating on software development, diverse team, modern tech environment",
     },
     {
-      icon: Paintbrush,
-      title: "Designers",
-      description:
-        "UI/UX, graphic, and product designers crafting beautiful, functional, and user-centered experiences.",
-      delay: 200,
+      src: "https://storage.googleapis.com/uxpilot-auth.appspot.com/1d9b5d6269-b13a82c21cd4d51f9f2f.png",
+      alt: "Nigerian design student presenting creative work to peers, professional setting, enthusiasm and talent",
     },
     {
-      icon: TrendingUp,
-      title: "Data Scientists",
-      description:
-        "Analysts, ML engineers, and AI specialists turning data into insights and intelligent systems.",
-      delay: 300,
-    },
-    {
-      icon: Rocket,
-      title: "Entrepreneurs",
-      description:
-        "Tech founders and innovators building startups and solutions to address local and global challenges.",
-      delay: 400,
-    },
-    {
-      icon: Settings,
-      title: "Mechatronics Engineers",
-      description:
-        "Multidisciplinary engineers combining mechanical, electrical, and computing skills to build automated systems.",
-      delay: 500,
+      src: "https://storage.googleapis.com/uxpilot-auth.appspot.com/5b034a2d8c-04c33e70cfab5adfb8a9.png",
+      alt: "Nigerian tech students at hackathon event, collaborative problem-solving, innovation showcase",
     },
   ];
 
+  // Auto-advance slideshow every 4 seconds
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Trigger animations with staggered delays
-            cards.forEach((_, index) => {
-              setTimeout(() => {
-                setVisibleCards((prev) => [...new Set([...prev, index])]);
-              }, index * 100);
-            });
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 4000);
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+    return () => clearInterval(interval);
+  }, [slides.length]);
 
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, []);
+  const handleDotClick = (index: number) => {
+    setCurrentSlide(index);
+  };
+
+  const handleStoryClick = () => {
+    // Add your story/video modal logic here
+    console.log("Our Story clicked");
+  };
 
   return (
-    <section ref={sectionRef} id="who" className="py-20 bg-gray-50">
+    <section id="intro" className="py-20 bg-softgray section-clickable">
       <div className="container mx-auto px-4">
-        <h2 className="font-bold text-3xl md:text-4xl text-center mb-16 text-gray-900">
-          Who Should Be in This?
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {cards.map((card, index) => {
-            const IconComponent = card.icon;
-            const isVisible = visibleCards.includes(index);
-
-            return (
-              <div
-                key={index}
-                className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-500 transform hover:-translate-y-1 cursor-pointer ${
-                  isVisible
-                    ? "opacity-100 translate-y-0 scale-100"
-                    : "opacity-0 translate-y-8 scale-95"
-                }`}
-                style={{
-                  transitionDelay: isVisible ? `${card.delay}ms` : "0ms",
-                }}
-              >
-                <div className="text-yellow-600 text-3xl mb-4">
-                  <IconComponent size={32} />
+        <div className="flex flex-col md:flex-row items-center">
+          <div className="w-full md:w-1/2 mb-10 md:mb-0 md:pr-10">
+            <h2 className="font-montserrat font-bold text-3xl md:text-4xl mb-6 animate-slide-left">
+              Meet Nigeria's Next 1,000 Builders
+            </h2>
+            <div className="space-y-4">
+              <p className="text-lg">
+                From the bustling labs of Lagos to the innovative hubs of Abuja,
+                Christian students across Nigeria are creating the future.
+              </p>
+              <p className="text-lg">
+                The CONCES National Talent Directory is the first comprehensive
+                showcase of emerging tech, engineering and design talent from
+                Christian higher institutions across Nigeria.
+              </p>
+              <p className="text-lg">
+                Our mission: connect brilliant minds with opportunities that
+                matter.
+              </p>
+            </div>
+            <button
+              id="story-btn"
+              onClick={handleStoryClick}
+              className="mt-8 flex items-center space-x-2 bg-navy text-white px-6 py-3 rounded-lg hover:bg-navy/80 transition-colors duration-300 section-clickable"
+            >
+              <Play size={16} />
+              <span>Our Story</span>
+            </button>
+          </div>
+          <div className="w-full md:w-1/2 relative h-[400px] rounded-lg overflow-hidden">
+            <div id="slideshow" className="relative w-full h-full section-clickable">
+              {slides.map((slide, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${
+                    index === currentSlide ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <img
+                    className="w-full h-full object-cover rounded-lg"
+                    src={slide.src}
+                    alt={slide.alt}
+                  />
                 </div>
-
-                <h3 className="font-semibold text-xl mb-3 text-gray-900">
-                  {card.title}
-                </h3>
-
-                <p className="text-gray-600 leading-relaxed">
-                  {card.description}
-                </p>
-              </div>
-            );
-          })}
+              ))}
+            </div>
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleDotClick(index)}
+                  className={`w-3 h-3 rounded-full slideshow-dot ${
+                    index === currentSlide ? "bg-white/80" : "bg-white/40"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes scale-in {
-          from {
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        .animate-scale-in {
-          animation: scale-in 0.6s ease-out forwards;
-        }
-
-        .delay-100 {
-          animation-delay: 100ms;
-        }
-        .delay-200 {
-          animation-delay: 200ms;
-        }
-        .delay-300 {
-          animation-delay: 300ms;
-        }
-        .delay-400 {
-          animation-delay: 400ms;
-        }
-        .delay-500 {
-          animation-delay: 500ms;
-        }
-      `}</style>
     </section>
   );
 };
 
-export default WhoSection;
+export default IntroSection;

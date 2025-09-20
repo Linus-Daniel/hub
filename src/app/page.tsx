@@ -1,7 +1,6 @@
 import Head from 'next/head'
 import Header from '@/components/home/Header'
 import Hero from '@/components/home/Hero'
-import Intro from '@/components/home/Intro'
 import About from '@/components/home/About'
 import Why from '@/components/home/Why'
 import Who from '@/components/home/Who'
@@ -10,6 +9,7 @@ import ProfilePreview from '@/components/home/ProfilePreview'
 import Join from '@/components/home/Join'
 import Footer from '@/components/home/Footer'
 import StickyCTA from '@/components/home/StickyCTA'
+import IntroSection from '@/components/home/Intro'
 
 export default function Home() {
   return (
@@ -23,7 +23,7 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
-        <Intro />
+        <IntroSection />
         <About />
         <Why />
         <Who />
