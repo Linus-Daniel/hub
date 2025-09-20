@@ -6,10 +6,10 @@ import Why from '@/components/home/Why'
 import Who from '@/components/home/Who'
 import Benefits from '@/components/home/Benefits'
 import ProfilePreview from '@/components/home/ProfilePreview'
-import Join from '@/components/home/Join'
 import Footer from '@/components/home/Footer'
 import StickyCTA from '@/components/home/StickyCTA'
 import IntroSection from '@/components/home/Intro'
+import JoinSection from '@/components/home/Join'
 
 export default function Home() {
   return (
@@ -29,7 +29,7 @@ export default function Home() {
         <Who />
         <Benefits />
         <ProfilePreview />
-        <Join />
+        <JoinSection />
       </main>
       <Footer />
       <StickyCTA />

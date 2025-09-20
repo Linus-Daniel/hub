@@ -92,25 +92,25 @@ export default function Dashboard() {
   const quickActions = [
     {
       title: "Add Project",
-      href: "/portfolio",
+      href: "/account/portfolio",
       icon: PlusIcon,
       color: "bg-teal hover:bg-teal-dark",
     },
     {
       title: "Update Skills",
-      href: "/skills",
+      href: "/account/skills",
       icon: ChartBarIcon,
       color: "bg-navy hover:bg-navy-dark",
     },
     {
       title: "View Messages",
-      href: "/messages",
+      href: "/account/messages",
       icon: ChatBubbleLeftIcon,
       color: "bg-gold hover:bg-gold-dark",
     },
     {
       title: "Settings",
-      href: "/settings",
+      href: "/account/settings",
       icon: UserGroupIcon,
       color: "bg-gray-600 hover:bg-gray-700",
     },
@@ -363,7 +363,7 @@ export default function Dashboard() {
             </div>
 
             {/* Notifications */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            {/* <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-navy">
                   Notifications
@@ -400,7 +400,7 @@ export default function Dashboard() {
                   </p>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

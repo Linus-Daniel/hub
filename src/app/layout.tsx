@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "CONCES - Nigeria Engineering & Tech Talent Network",
@@ -15,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body >{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
