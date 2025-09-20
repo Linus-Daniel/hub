@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Head from "next/head";
 import {
   FaMagnifyingGlass,
@@ -7,9 +7,6 @@ import {
   FaBell,
   FaCircleUser,
   FaChevronDown,
-  FaTableCellsLarge,
-  FaChevronLeft,
-  FaChevronRight,
   FaXmark,
   FaArrowLeft,
   FaEnvelope,
@@ -25,15 +22,15 @@ import {
   FaLinkedin,
   FaPhone,
   FaBookmark,
-  FaShare,
   FaHeart,
+  FaSpinner,
 } from "react-icons/fa6";
 import Link from "next/link";
 
 // Types
 interface Student {
   id: string;
-  fullname: string;
+  name: string;
   title: string;
   status: string;
   skills: string[];
@@ -55,81 +52,33 @@ interface Student {
 
 // Constants
 const GRADIENT_OPTIONS = [
-  "from-blue-600 to-purple-600",
-  "from-teal-500 to-cyan-600",
-  "from-emerald-500 to-green-600",
-  "from-amber-500 to-orange-600",
-  "from-violet-600 to-purple-700",
-  "from-pink-500 to-rose-600",
-  "from-indigo-600 to-blue-700",
-  "from-sky-500 to-blue-600",
+  "from-navy to-teal",
+  "from-gold to-teal",
+  "from-navy to-gold",
+  "from-teal to-navy",
+  "from-gold to-navy",
+  "from-teal to-gold",
 ];
 
 const MAJOR_SKILL_MAP: Record<string, string[]> = {
-  Mechatronics: [
-    "Arduino",
-    "Robotics",
-    "3D Modeling",
-    "Programming",
-    "CAD",
-    "Electronics",
-  ],
-  "Computer Science": [
-    "React",
-    "Node.js",
-    "Python",
-    "JavaScript",
-    "TypeScript",
-    "AWS",
-  ],
+  Mechatronics: ["Arduino", "Robotics", "3D Modeling", "Programming"],
+  "Computer Science": ["React", "Node.js", "Python", "JavaScript"],
   "Electrical Engineering": [
     "Circuit Design",
     "MATLAB",
     "Arduino",
     "PCB Design",
-    "Power Systems",
-    "Embedded Systems",
   ],
-  "Software Engineering": [
-    "Full Stack",
-    "React",
-    "Node.js",
-    "Database Design",
-    "DevOps",
-    "Testing",
-  ],
-  "Mechanical Engineering": [
-    "CAD",
-    "SolidWorks",
-    "3D Modeling",
-    "AutoCAD",
-    "Thermodynamics",
-    "FEA",
-  ],
+  "Software Engineering": ["Full Stack", "React", "Node.js", "Database Design"],
+  "Mechanical Engineering": ["CAD", "SolidWorks", "3D Modeling", "AutoCAD"],
   "Civil Engineering": [
     "AutoCAD",
     "Revit",
     "Project Management",
     "Structural Analysis",
-    "Construction",
-    "Surveying",
   ],
-  "UI/UX Design": [
-    "Figma",
-    "Adobe XD",
-    "Prototyping",
-    "User Research",
-    "Wireframing",
-    "Design Systems",
-  ],
-  "Graphic Design": [
-    "Adobe Suite",
-    "Branding",
-    "Typography",
-    "Illustration",
-    "Print Design",
-    "Digital Art",
-  ],
+  "UI/UX Design": ["Figma", "Adobe XD", "Prototyping", "User Research"],
+  "Graphic Design": ["Adobe Suite", "Branding", "Typography", "Illustration"],
 };
 
 const DEFAULT_SKILLS = [
@@ -137,8 +86,6 @@ const DEFAULT_SKILLS = [
   "Problem Solving",
   "Teamwork",
   "Communication",
-  "Leadership",
-  "Time Management",
 ];
 
 // Utility Functions
@@ -175,7 +122,7 @@ const ProfileCard = ({
 
   return (
     <div
-      className="bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-xl cursor-pointer border border-gray-100"
+      className="bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl cursor-pointer border border-gray-100"
       onClick={onClick}
     >
       <div className="relative">
@@ -185,43 +132,39 @@ const ProfileCard = ({
         <div className="absolute top-14 left-1/2 transform -translate-x-1/2">
           <img
             src={student.image}
-            alt={student.fullname}
-            className="w-20 h-20 rounded-full border-4 border-white object-cover shadow-lg"
+            alt={student.name}
+            className="w-20 h-20 rounded-full border-4 border-white object-cover shadow-md"
           />
         </div>
         <div className="absolute top-4 right-4 flex space-x-2">
           <button
             onClick={handleSaveClick}
-            className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
+            className="p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
           >
             <FaBookmark
-              className={`text-sm ${
-                isSaved ? "text-blue-600 fill-current" : "text-gray-600"
-              }`}
+              className={`text-xs ${isSaved ? "text-teal" : "text-gray-500"}`}
             />
           </button>
           <button
             onClick={handleLikeClick}
-            className="p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
+            className="p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
           >
             <FaHeart
-              className={`text-sm ${
-                isLiked ? "text-rose-600 fill-current" : "text-gray-600"
-              }`}
+              className={`text-xs ${isLiked ? "text-gold" : "text-gray-500"}`}
             />
           </button>
         </div>
       </div>
-      <div className="pt-14 pb-6 px-5">
+      <div className="pt-12 pb-5 px-5">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
-            {student.fullname}
+          <h3 className="text-lg font-bold text-navy line-clamp-1">
+            {student.name}
           </h3>
           <span
             className={`${
               student.status === "available"
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-amber-100 text-amber-700"
+                ? "bg-teal/10 text-teal"
+                : "bg-gold/10 text-gold"
             } text-xs px-2 py-1 rounded-full whitespace-nowrap`}
           >
             {student.status === "available" ? "Available" : "Top Talent"}
@@ -231,18 +174,18 @@ const ProfileCard = ({
           {student.title}
         </p>
 
-        <div className="mb-4">
-          <div className="flex flex-wrap gap-1">
+        <div className="mb-3">
+          <div className="flex flex-wrap gap-1.5">
             {student.skills.slice(0, 3).map((skill, index) => (
               <span
                 key={index}
-                className="bg-gray-100 px-2.5 py-1 rounded-full text-xs text-gray-700"
+                className="bg-softgray px-2.5 py-1 rounded-full text-xs text-navy"
               >
                 {skill}
               </span>
             ))}
             {student.skills.length > 3 && (
-              <span className="bg-gray-100 px-2.5 py-1 rounded-full text-xs text-gray-700">
+              <span className="bg-softgray px-2.5 py-1 rounded-full text-xs text-navy">
                 +{student.skills.length - 3}
               </span>
             )}
@@ -250,11 +193,11 @@ const ProfileCard = ({
         </div>
 
         <div className="flex items-center text-sm text-gray-600 mb-4">
-          <FaLocationDot className="mr-2 flex-shrink-0 text-gray-400" />
+          <FaLocationDot className="mr-2 flex-shrink-0 text-teal" />
           <span className="truncate">{student.university}</span>
         </div>
 
-        <button className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-medium text-sm">
+        <button className="w-full py-2 bg-navy text-white flex items-center justify-center rounded-lg hover:bg-opacity-90 transition-all font-medium text-sm">
           View Profile
         </button>
       </div>
@@ -284,29 +227,29 @@ const FilterModal = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden">
-        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <h3 className="text-xl font-bold text-gray-900">Filter Talents</h3>
+      <div className="bg-white rounded-xl w-full max-w-md overflow-hidden">
+        <div className="flex justify-between items-center p-5 border-b border-gray-200">
+          <h3 className="text-lg font-bold text-navy">Filter Talents</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1 hover:bg-softgray rounded-lg transition-colors"
           >
-            <FaXmark className="text-gray-500" />
+            <FaXmark className="text-gray-500 text-lg" />
           </button>
         </div>
-        <div className="p-6 max-h-[60vh] overflow-y-auto">
-          <div className="space-y-4">
+        <div className="p-5 max-h-[60vh] overflow-y-auto">
+          <div className="space-y-5">
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Status</h4>
+              <h4 className="font-semibold text-navy mb-3">Status</h4>
               <div className="flex flex-wrap gap-2">
                 {filters.slice(0, 2).map((filter) => (
                   <button
                     key={filter.id}
                     onClick={() => toggleFilter(filter.id)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedFilters.includes(filter.id)
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-teal text-white"
+                        : "bg-softgray text-navy hover:bg-gray-200"
                     }`}
                   >
                     {filter.label}
@@ -316,18 +259,16 @@ const FilterModal = ({ onClose }: { onClose: () => void }) => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">
-                Field of Study
-              </h4>
+              <h4 className="font-semibold text-navy mb-3">Field of Study</h4>
               <div className="flex flex-wrap gap-2">
                 {filters.slice(2, 5).map((filter) => (
                   <button
                     key={filter.id}
                     onClick={() => toggleFilter(filter.id)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedFilters.includes(filter.id)
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-teal text-white"
+                        : "bg-softgray text-navy hover:bg-gray-200"
                     }`}
                   >
                     {filter.label}
@@ -337,16 +278,16 @@ const FilterModal = ({ onClose }: { onClose: () => void }) => {
             </div>
 
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Other</h4>
+              <h4 className="font-semibold text-navy mb-3">Other</h4>
               <div className="flex flex-wrap gap-2">
                 {filters.slice(5).map((filter) => (
                   <button
                     key={filter.id}
                     onClick={() => toggleFilter(filter.id)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedFilters.includes(filter.id)
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        ? "bg-teal text-white"
+                        : "bg-softgray text-navy hover:bg-gray-200"
                     }`}
                   >
                     {filter.label}
@@ -356,16 +297,16 @@ const FilterModal = ({ onClose }: { onClose: () => void }) => {
             </div>
           </div>
         </div>
-        <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-between">
+        <div className="p-5 border-t border-gray-200 bg-softgray flex justify-between">
           <button
             onClick={() => setSelectedFilters([])}
-            className="px-6 py-3 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
+            className="px-5 py-2.5 text-navy font-medium rounded-lg hover:bg-gray-200 transition-colors"
           >
             Reset All
           </button>
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all"
+            className="px-5 py-2.5 bg-teal text-white font-medium rounded-lg hover:bg-teal/90 transition-colors"
           >
             Apply Filters
           </button>
@@ -375,26 +316,25 @@ const FilterModal = ({ onClose }: { onClose: () => void }) => {
   );
 };
 
-// ProfileModal and ContactModal components remain similar but with updated styling
-// ... (they would follow the same modern design pattern)
-
 // Main Component
 const TalentPage = () => {
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [showContactModal, setShowContactModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastStudentRef = useRef<HTMLDivElement | null>(null);
 
   // Fetch talents from API
   useEffect(() => {
     const fetchTalents = async () => {
       try {
-        const response = await fetch("/api/talents");
+        setLoading(true);
+        const response = await fetch(`/api/talents?page=${page}&limit=12`);
         if (!response.ok) {
           throw new Error("Failed to fetch talents");
         }
@@ -403,16 +343,16 @@ const TalentPage = () => {
         const transformedStudents: Student[] = data.map(
           (student: any, index: number) => ({
             id: student._id,
-            fullname: student.fullname,
+            name: student.fullname,
             title: `${student.major} Student`,
             status: student.status === "pending" ? "available" : student.status,
             skills: extractSkills(student),
             university: student.institution,
             image:
               student.avatar ||
-              `https://images.unsplash.com/photo-${
-                1507003211169 + index
-              }a1dd7228f2d?w=150&h=150&fit=crop&crop=face`,
+              `https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-${
+                (index % 6) + 1
+              }.jpg`,
             gradient: getRandomGradient(index),
             location: student.location,
             graduationYear: student.graduationYear,
@@ -428,25 +368,29 @@ const TalentPage = () => {
           })
         );
 
-        setStudents(transformedStudents);
-        if (transformedStudents.length > 0) {
-          setSelectedStudent(transformedStudents[0]);
+        if (page === 1) {
+          setStudents(transformedStudents);
+        } else {
+          setStudents((prev) => [...prev, ...transformedStudents]);
         }
+
+        setLoadingMore(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
+        setLoadingMore(false);
       } finally {
         setLoading(false);
       }
     };
 
     fetchTalents();
-  }, []);
+  }, [page]);
 
   const filteredStudents = useMemo(() => {
     if (!searchQuery) return students;
     return students.filter(
       (student) =>
-        student.fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         student.major.toLowerCase().includes(searchQuery.toLowerCase()) ||
         student.skills.some((skill) =>
           skill.toLowerCase().includes(searchQuery.toLowerCase())
@@ -457,46 +401,52 @@ const TalentPage = () => {
 
   const openProfile = useCallback((student: Student) => {
     setSelectedStudent(student);
-    setShowProfileModal(true);
-  }, []);
-
-  const openContact = useCallback(() => {
-    setShowProfileModal(false);
-    setShowContactModal(true);
   }, []);
 
   // Memoized student cards to prevent unnecessary re-renders
   const studentCards = useMemo(
     () =>
-      filteredStudents.map((student) => (
-        <ProfileCard
-          key={student.id}
-          student={student}
-          onClick={() => openProfile(student)}
-        />
-      )),
+      filteredStudents.map((student, index) => {
+        if (index === filteredStudents.length - 1) {
+          return (
+            <div key={student.id} ref={lastStudentRef}>
+              <ProfileCard
+                student={student}
+                onClick={() => openProfile(student)}
+              />
+            </div>
+          );
+        }
+        return (
+          <ProfileCard
+            key={student.id}
+            student={student}
+            onClick={() => openProfile(student)}
+          />
+        );
+      }),
     [filteredStudents, openProfile]
   );
 
-  if (loading) {
+  if (loading && students.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="bg-softgray min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading talents...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal mx-auto mb-4"></div>
+          <p className="text-navy">Loading talents...</p>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error && students.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="bg-softgray min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Error: {error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2.5 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all"
+            className="bg-teal text-white px-4 py-2 rounded-lg hover:bg-opacity-90"
           >
             Try Again
           </button>
@@ -506,28 +456,27 @@ const TalentPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="bg-softgray min-h-screen">
       <Head>
         <title>CONCESTalent - National Talent Directory</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
 
       {/* Header Navigation */}
-      <header className="bg-white sticky top-0 z-40 shadow-sm px-4 lg:px-8 py-4">
+      <header className="bg-white sticky top-0 z-40 shadow-sm px-4 md:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="text-2xl font-bold text-gray-900 mr-8">
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                CONCESTalent
-              </span>
+            <Link href="/" className="text-2xl font-bold text-navy mr-8">
+              <span className="text-navy">CONCES</span>
+              <span className="text-teal">Talent</span>
             </Link>
-            <div className="hidden md:block relative w-80">
+            <div className="hidden md:block relative w-72">
               <input
                 type="text"
-                placeholder="Search talents, skills, universities..."
+                placeholder="Search talents, skills..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
               />
               <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
@@ -536,17 +485,17 @@ const TalentPage = () => {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setShowFilterModal(true)}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center space-x-2 text-navy hover:text-teal p-2 rounded-lg hover:bg-softgray transition-colors"
             >
               <FaSliders />
               <span className="hidden md:inline">Filters</span>
             </button>
-            <button className="hidden md:flex items-center space-x-2 text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <button className="hidden md:flex items-center space-x-2 text-navy hover:text-teal p-2 rounded-lg hover:bg-softgray transition-colors">
               <FaBell />
             </button>
-            <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <button className="flex items-center space-x-2 text-navy hover:text-teal p-2 rounded-lg hover:bg-softgray transition-colors">
               <FaCircleUser className="text-xl" />
-              <span className="hidden md:inline">Profile</span>
+              <span className="hidden md:inline">Account</span>
             </button>
           </div>
         </div>
@@ -560,28 +509,29 @@ const TalentPage = () => {
             placeholder="Search talents, skills..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+            className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
           />
           <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
-        {/* Page Title and Filters Summary */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8">
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
+        {/* Page Title and Stats */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-              Discover Talent
+            <h1 className="text-2xl md:text-3xl font-bold text-navy mb-2">
+              National Talent Directory
             </h1>
             <p className="text-gray-600">
-              {filteredStudents.length} talented students ready for
-              opportunities
+              Discover exceptional student talents across all disciplines
+              {filteredStudents.length > 0 &&
+                ` (${filteredStudents.length} talents)`}
             </p>
           </div>
-          <div className="mt-4 lg:mt-0 flex items-center space-x-3">
+          <div className="mt-4 md:mt-0 flex items-center space-x-3">
             <div className="relative">
-              <select className="appearance-none bg-white border border-gray-200 rounded-xl py-2.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+              <select className="appearance-none bg-white border border-gray-300 rounded-lg py-2 pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-teal text-sm">
                 <option>Newest First</option>
                 <option>Highest Rated</option>
                 <option>Most Popular</option>
@@ -592,14 +542,14 @@ const TalentPage = () => {
         </div>
 
         {/* Profile Grid - 2 columns on mobile */}
-        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {studentCards}
         </div>
 
-        {filteredStudents.length === 0 && (
+        {filteredStudents.length === 0 && !loading && (
           <div className="text-center py-12">
-            <div className="text-gray-400 text-6xl mb-4">🔍</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <div className="text-gray-400 text-4xl mb-4">🔍</div>
+            <h3 className="text-lg font-medium text-navy mb-2">
               No talents found
             </h3>
             <p className="text-gray-600">
@@ -608,59 +558,40 @@ const TalentPage = () => {
           </div>
         )}
 
-        {/* Pagination */}
-        {filteredStudents.length > 0 && (
-          <div className="mt-12 flex justify-center">
-            <div className="inline-flex rounded-xl shadow-sm">
-              <button className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-l-xl hover:bg-gray-50">
-                <FaChevronLeft className="mr-1" />
-                Previous
-              </button>
-              <button className="px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 border border-blue-600">
-                1
-              </button>
-              <button className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border-t border-b border-gray-200 hover:bg-gray-50">
-                2
-              </button>
-              <button className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border-t border-b border-gray-200 hover:bg-gray-50">
-                3
-              </button>
-              <button className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-r-xl hover:bg-gray-50">
-                Next <FaChevronRight className="ml-1" />
-              </button>
-            </div>
+        {/* Loading spinner for infinite scroll */}
+        {loadingMore && (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal"></div>
           </div>
         )}
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-40">
         <div className="flex justify-around">
-          <button className="flex flex-col items-center text-gray-600">
+          <button className="flex flex-col items-center text-navy">
             <FaHouse className="text-lg" />
             <span className="text-xs mt-1">Home</span>
           </button>
-          <button className="flex flex-col items-center text-blue-600">
+          <button className="flex flex-col items-center text-navy">
+            <FaMagnifyingGlass className="text-lg" />
+            <span className="text-xs mt-1">Search</span>
+          </button>
+          <button className="flex flex-col items-center text-teal">
             <FaUserGroup className="text-lg" />
             <span className="text-xs mt-1">Talents</span>
           </button>
-          <button className="flex flex-col items-center text-gray-600">
-            <FaBookmark className="text-lg" />
-            <span className="text-xs mt-1">Saved</span>
-          </button>
-          <button className="flex flex-col items-center text-gray-600">
+          <button className="flex flex-col items-center text-navy">
             <FaUser className="text-lg" />
             <span className="text-xs mt-1">Profile</span>
           </button>
         </div>
       </div>
 
-      {/* Modals */}
+      {/* Filter Modal */}
       {showFilterModal && (
         <FilterModal onClose={() => setShowFilterModal(false)} />
       )}
-
-      {/* ProfileModal and ContactModal would be rendered here */}
     </div>
   );
 };
