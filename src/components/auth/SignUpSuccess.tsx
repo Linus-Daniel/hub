@@ -21,7 +21,7 @@ export default function SignUpSuccess() {
         Nigeria&apos;s brightest talent network.
       </p>
 
-      <Button onClick={() => router.push("/dashboard")} className="w-full">
+      <Button onClick={() => router.push("/account")} className="w-full">
         Continue to Dashboard
       </Button>
     </div>

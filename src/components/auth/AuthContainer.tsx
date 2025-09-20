@@ -23,7 +23,7 @@ export default function AuthContainer() {
 
   const handleOAuthSignIn = async (provider: string) => {
     try {
-      await signIn(provider, { callbackUrl: "/dashboard" });
+      await signIn(provider, { callbackUrl: "/account" });
     } catch (error) {
       console.error(`${provider} sign-in error:`, error);
     }
