@@ -10,11 +10,13 @@
       
     
 }
-
 @font-face {
-  font-family: "inter";
-  src: url("../../public/inter_regular.ttf") format("truetype");
+  font-family: "Inter";
+  src: url("/inter_regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
 }
+
 
 
 
