@@ -2,22 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import TalentUser from "@/models/User";
 import { validateAdminToken } from "@/lib/validateToken";
 import { connectDB } from "@/lib/mongodb";
-
-function addCorsHeaders(response: NextResponse) {
-  response.headers.set(
-    "Access-Control-Allow-Origin",
-    process.env.ADMIN_DOMAIN || "http://localhost:3000"
-  );
-  response.headers.set(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  response.headers.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
-  return response;
-}
+import { addCorsHeaders, createOptionsResponse } from "@/lib/cors";
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,9 +22,9 @@ export async function GET(request: NextRequest) {
     if (search) {
       searchQuery = {
         $or: [
-          { name: { $regex: search, $options: "i" } },
+          { fullName: { $regex: search, $options: "i" } }, // Changed from name to fullName
           { email: { $regex: search, $options: "i" } },
-          { university: { $regex: search, $options: "i" } },
+          { institution: { $regex: search, $options: "i" } }, // Changed from university to institution
           { major: { $regex: search, $options: "i" } },
         ],
       };
@@ -63,7 +48,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return addCorsHeaders(response);
+    return addCorsHeaders(response, request);
   } catch (error) {
     console.error("Error in admin/users API:", error);
 
@@ -86,18 +71,10 @@ export async function GET(request: NextRequest) {
       { error: errorMessage },
       { status: statusCode }
     );
-    return addCorsHeaders(response);
+    return addCorsHeaders(response, request);
   }
 }
 
 export async function OPTIONS(request: NextRequest) {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin":
-        process.env.ADMIN_DOMAIN || "http://localhost:3000",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-  });
+  return createOptionsResponse();
 }

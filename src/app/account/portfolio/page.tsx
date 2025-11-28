@@ -1,14 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Plus, Search, Filter } from "lucide-react";
-import ProjectCard from "@/components/accont/ProjectCartd";
-import ProjectModal from "@/components/accont/ProjectModal";
+import ProjectCard from "@/components/account/ProjectCartd";
+import ProjectModal from "@/components/account/ProjectModal";
 import { toast } from "sonner";
 import { Project } from "@/types";
 
 
 export default function PortfolioPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,8 +21,14 @@ export default function PortfolioPage() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    if (status === "unauthenticated") {
+      router.push("/auth");
+      return;
+    }
+    if (status === "authenticated") {
+      fetchProjects();
+    }
+  }, [status, router]);
 
   const fetchProjects = async () => {
     try {
@@ -182,7 +192,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* Projects Grid - Responsive */}
-      {loading ? (
+      {(status === "loading" || loading) ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
         </div>

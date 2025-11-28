@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Plus, Search, Award, TrendingUp } from "lucide-react";
-import SkillCard from "@/components/accont/SkillCard";
-import SkillModal from "@/components/accont/SkillModal";
+import SkillCard from "@/components/account/SkillCard";
+import SkillModal from "@/components/account/SkillModal";
 import { toast } from "sonner";
 
 interface Skill {
@@ -18,12 +20,24 @@ interface Skill {
 }
 
 export default function SkillsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth");
+      return;
+    }
+    if (status === "authenticated") {
+      fetchSkills();
+    }
+  }, [status, router]);
 
   const categories = [
     "Frontend Development",
@@ -39,9 +53,6 @@ export default function SkillsPage() {
     "Project Management",
   ];
 
-  useEffect(() => {
-    fetchSkills();
-  }, []);
 
   const fetchSkills = async () => {
     try {
@@ -251,7 +262,7 @@ export default function SkillsPage() {
       </div>
 
       {/* Skills by Category */}
-      {loading ? (
+      {(status === "loading" || loading) ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
         </div>

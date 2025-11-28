@@ -1,17 +1,10 @@
 import React, { ReactNode } from 'react'
-import "../globals.css"
-import Layout from '@/components/accont/Layout'
+import Layout from '@/components/account/Layout'
 
-function RootLayout({children}:{children:ReactNode}) {
+export default function AccountLayout({children}:{children:ReactNode}) {
   return (
-    <html>
-        <body>
-            <Layout>
-                {children}
-            </Layout>
-        </body>
-    </html>
+    <Layout>
+      {children}
+    </Layout>
   )
 }
-
-export default RootLayout

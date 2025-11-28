@@ -1,329 +1,289 @@
-"use client"
-// pages/student/profile.js
+"use client";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import ChatInterface from "../../../components/accont/ChatInterface";
+import { toast } from "sonner";
 import {
   ArrowLeftIcon,
   BriefcaseIcon,
-  UserPlusIcon,
-  ChatBubbleLeftIcon,
+  UserIcon,
+  EnvelopeIcon,
+  PhoneIcon,
+  MapPinIcon,
+  AcademicCapIcon,
+  CalendarIcon,
 } from "@heroicons/react/24/outline";
 
-// Sample student data - in real app this would come from API/database
-const studentData = {
-  id: 1,
-  name: "Sarah Johnson",
-  title: "UX/UI Designer & Front-end Developer",
-  email: "sarah.johnson@university.edu",
-  phone: "+1 (555) 123-4567",
-  location: "San Francisco, CA",
-  university: "Stanford University",
-  image:
-    "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg",
-  isOnline: true,
-  isAvailable: true,
-  about:
-    "I'm a passionate UX/UI designer and front-end developer with 3 years of experience creating intuitive digital experiences. I specialize in user-centered design and building accessible interfaces that delight users while meeting business objectives.",
-  quote:
-    "I can do all things through Christ who strengthens me. — Philippians 4:13",
-  skills: [
-    "UI Design",
-    "UX Research",
-    "HTML/CSS",
-    "JavaScript",
-    "React",
-    "Figma",
-    "Adobe XD",
-    "Sketch",
-    "Prototyping",
-    "Responsive Design",
-  ],
-  portfolio: [
-    {
-      id: 1,
-      title: "Modern E-commerce UI",
-      image:
-        "https://storage.googleapis.com/uxpilot-auth.appspot.com/f3022e92cc-2a04e8e8412e3edd6095.png",
-      description: "Complete e-commerce platform design with modern aesthetics",
-    },
-    {
-      id: 2,
-      title: "Mobile Banking App",
-      image:
-        "https://storage.googleapis.com/uxpilot-auth.appspot.com/ba6173455f-86ad43407f42fd1e7255.png",
-      description: "Secure and intuitive mobile banking interface",
-    },
-    {
-      id: 3,
-      title: "SaaS Dashboard",
-      image:
-        "https://storage.googleapis.com/uxpilot-auth.appspot.com/425703d595-0fa704803957c22f7214.png",
-      description: "Analytics dashboard for business intelligence",
-    },
-    {
-      id: 4,
-      title: "User Research Project",
-      image:
-        "https://storage.googleapis.com/uxpilot-auth.appspot.com/fb56764867-1aa38f0f4c3fa3beea05.png",
-      description: "Comprehensive UX research and wireframing process",
-    },
-    {
-      id: 5,
-      title: "Brand Identity System",
-      image:
-        "https://storage.googleapis.com/uxpilot-auth.appspot.com/c5627bfe1a-722827aa3ced78577629.png",
-      description: "Complete brand identity and style guide",
-    },
-    {
-      id: 6,
-      title: "Responsive Web Design",
-      image:
-        "https://storage.googleapis.com/uxpilot-auth.appspot.com/2d27290da6-f8137be8e9ed7a433017.png",
-      description: "Multi-device responsive website design",
-    },
-  ],
-  testimonials: [
-    {
-      id: 1,
-      name: "Michael Roberts",
-      title: "Project Manager, TechFlow",
-      image:
-        "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg",
-      content:
-        "Sarah's work exceeded our expectations. Her attention to detail and user-focused approach transformed our product. Highly recommended!",
-    },
-    {
-      id: 2,
-      name: "Emma Williams",
-      title: "Founder, CreativeHub",
-      image:
-        "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg",
-      content:
-        "Working with Sarah was a pleasure. She brings both technical expertise and creative vision to every project. Our users love the new interface she designed.",
-    },
-    {
-      id: 3,
-      name: "David Chen",
-      title: "CTO, InnovateTech",
-      image:
-        "https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-4.jpg",
-      content:
-        "Sarah has a rare combination of design talent and technical knowledge. She delivered a beautiful, functional interface and was able to implement it flawlessly.",
-    },
-  ],
-};
-
-export default function StudentProfile() {
+export default function ProfilePage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth");
+      return;
+    }
+    if (status === "authenticated") {
+      fetchUserData();
+    }
+  }, [status, router]);
+
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch("/api/settings");
+      if (!response.ok) throw new Error("Failed to fetch user data");
+      const data = await response.json();
+      setUserData(data);
+    } catch (error) {
+      toast.error("Failed to load profile data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (status === "loading" || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900">Profile not found</h2>
+          <p className="text-gray-600 mt-2">Unable to load your profile data.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-softgray min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm py-4 px-6 md:px-8 lg:px-12">
-        <div className="container mx-auto">
+      <div className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.back()}
-              className="flex items-center text-navy hover:text-teal transition"
+              className="flex items-center text-gray-600 hover:text-teal-600 transition"
             >
               <ArrowLeftIcon className="h-5 w-5 mr-2" />
-              <span className="font-medium">Back to Directory</span>
+              <span className="font-medium">Back to Dashboard</span>
             </button>
-
-            <div className="hidden md:block">
-              <div className="flex items-center space-x-4">
-                <span className="text-navy hover:text-gold transition cursor-pointer">
-                  Home
-                </span>
-                <span className="text-navy hover:text-gold transition cursor-pointer">
-                  Directory
-                </span>
-                <span className="text-navy hover:text-gold transition cursor-pointer">
-                  Events
-                </span>
-                <span className="text-navy hover:text-gold transition cursor-pointer">
-                  Resources
-                </span>
-              </div>
-            </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
-      <div className="flex-grow flex flex-col lg:flex-row container mx-auto px-4 md:px-8 py-6 lg:py-12 gap-8">
-        {/* Left Column - Profile */}
-        <div className="lg:w-1/2 flex-shrink-0">
-          {/* Profile Header */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              <div className="relative">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Profile Header */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+          {/* Cover/Header Section */}
+          <div className="bg-gradient-to-r from-teal-500 to-teal-600 h-32"></div>
+          
+          {/* Profile Info Section */}
+          <div className="px-6 pb-6">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end -mt-16 sm:-mt-12">
+              {/* Profile Picture */}
+              <div className="relative mb-4 sm:mb-0">
                 <img
-                  src={studentData.image}
-                  alt={studentData.name}
-                  className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-md"
+                  src={
+                    userData.avatar ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      userData.fullname || "User"
+                    )}&background=14b8a6&color=fff&size=128`
+                  }
+                  alt="Profile"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-lg"
                 />
-                <div
-                  className={`absolute bottom-1 right-1 w-5 h-5 rounded-full border-2 border-white ${
-                    studentData.isOnline ? "bg-green-500" : "bg-gray-400"
-                  }`}
-                ></div>
+                <div className="absolute bottom-1 right-1 w-4 h-4 sm:w-6 sm:h-6 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
 
-              <div className="flex-1 text-center md:text-left">
-                <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                  <h1 className="text-2xl md:text-3xl font-bold text-navy">
-                    {studentData.name}
-                  </h1>
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                      studentData.isAvailable
-                        ? "bg-teal bg-opacity-10 text-teal"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
+              {/* Basic Info */}
+              <div className="text-center sm:text-left sm:ml-6 flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  {userData.fullname || "Your Name"}
+                </h1>
+                <p className="text-gray-600 text-lg">{userData.bio || "Add a bio to your profile"}</p>
+                
+                <div className="flex flex-wrap justify-center sm:justify-start items-center gap-4 mt-3 text-sm text-gray-600">
+                  {userData.location && (
+                    <div className="flex items-center">
+                      <MapPinIcon className="h-4 w-4 mr-1" />
+                      <span>{userData.location}</span>
+                    </div>
+                  )}
+                  {userData.institution && (
+                    <div className="flex items-center">
+                      <AcademicCapIcon className="h-4 w-4 mr-1" />
+                      <span>{userData.institution}</span>
+                    </div>
+                  )}
+                  {userData.graduationYear && (
+                    <div className="flex items-center">
+                      <CalendarIcon className="h-4 w-4 mr-1" />
+                      <span>Class of {userData.graduationYear}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-4">
+                  <button
+                    onClick={() => router.push('/account/settings')}
+                    className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
                   >
-                    <span
-                      className={`w-2 h-2 rounded-full mr-2 ${
-                        studentData.isAvailable ? "bg-teal" : "bg-gray-400"
-                      }`}
-                    ></span>
-                    {studentData.isAvailable
-                      ? "Available for Projects"
-                      : "Busy"}
+                    Edit Profile
+                  </button>
+                  <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                    Share Profile
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Contact Information */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <EnvelopeIcon className="h-5 w-5 text-gray-400 mr-3" />
+                  <span className="text-gray-900">{userData.email}</span>
+                </div>
+                {userData.phone && (
+                  <div className="flex items-center">
+                    <PhoneIcon className="h-5 w-5 text-gray-400 mr-3" />
+                    <span className="text-gray-900">{userData.phone}</span>
+                  </div>
+                )}
+                {userData.website && (
+                  <div className="flex items-center">
+                    <UserIcon className="h-5 w-5 text-gray-400 mr-3" />
+                    <a
+                      href={userData.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-teal-600 hover:text-teal-700"
+                    >
+                      {userData.website}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Social Links */}
+            {(userData.linkedin || userData.github) && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Social Links</h2>
+                <div className="space-y-3">
+                  {userData.linkedin && (
+                    <a
+                      href={userData.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-blue-600 hover:text-blue-700"
+                    >
+                      <span className="mr-3">LinkedIn</span>
+                    </a>
+                  )}
+                  {userData.github && (
+                    <a
+                      href={userData.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-gray-800 hover:text-gray-900"
+                    >
+                      <span className="mr-3">GitHub</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {/* Academic Information */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Academic Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Institution</label>
+                  <p className="mt-1 text-gray-900">{userData.institution || "Not specified"}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Major</label>
+                  <p className="mt-1 text-gray-900">{userData.major || "Not specified"}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Graduation Year</label>
+                  <p className="mt-1 text-gray-900">{userData.graduationYear || "Not specified"}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <p className="mt-1">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      userData.status === 'approved' 
+                        ? 'bg-green-100 text-green-800'
+                        : userData.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {userData.status || 'Pending'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Privacy Settings */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Privacy Settings</h2>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Profile Visibility</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    userData.privacy?.profileVisible 
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {userData.privacy?.profileVisible ? 'Public' : 'Private'}
                   </span>
                 </div>
-                <p className="text-gray-600 mt-1 mb-4">{studentData.title}</p>
-
-                <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-navy text-white rounded-lg hover:bg-opacity-90 transition">
-                    <BriefcaseIcon className="h-4 w-4" />
-                    <span>View Portfolio</span>
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-gold text-navy rounded-lg hover:bg-opacity-90 transition">
-                    <UserPlusIcon className="h-4 w-4" />
-                    <span>Hire Me</span>
-                  </button>
-                  <button
-                    onClick={() => setIsMobileChatOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 border border-navy text-navy rounded-lg hover:bg-navy hover:text-white transition lg:hidden"
-                  >
-                    <ChatBubbleLeftIcon className="h-4 w-4" />
-                    <span>Message</span>
-                  </button>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Show Email</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    userData.privacy?.showEmail 
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {userData.privacy?.showEmail ? 'Yes' : 'No'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Show Phone</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    userData.privacy?.showPhone 
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {userData.privacy?.showPhone ? 'Yes' : 'No'}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* About Me */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-semibold text-navy mb-4">About Me</h2>
-            <p className="text-gray-700 mb-4">{studentData.about}</p>
-            <blockquote className="border-l-4 border-gold pl-4 italic text-gray-600">
-              {studentData.quote}
-            </blockquote>
-          </div>
-
-          {/* Skills & Tools */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-semibold text-navy mb-4">
-              Skills & Tools
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {studentData.skills.map((skill, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-navy bg-opacity-10 text-navy rounded-full text-sm"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Portfolio Gallery */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-semibold text-navy mb-4">
-              Portfolio Gallery
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {studentData.portfolio.map((item) => (
-                <div
-                  key={item.id}
-                  className="aspect-square rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition group"
-                >
-                  <img
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    src={item.image}
-                    alt={item.title}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Testimonials */}
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-            <h2 className="text-xl font-semibold text-navy mb-4">
-              Testimonials
-            </h2>
-            <div className="space-y-4 max-h-[300px] overflow-y-auto">
-              {studentData.testimonials.map((testimonial) => (
-                <div
-                  key={testimonial.id}
-                  className="bg-softgray rounded-lg p-4"
-                >
-                  <div className="flex items-center mb-3">
-                    <img
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      className="w-10 h-10 rounded-full mr-3"
-                    />
-                    <div>
-                      <h4 className="font-medium text-navy">
-                        {testimonial.name}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        {testimonial.title}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700">{testimonial.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column - Chat Interface */}
-        <div className="lg:w-1/2 lg:block hidden">
-          <ChatInterface onClose={() => {}} student={studentData} />
         </div>
       </div>
-
-      {/* Mobile Contact Button */}
-      <div className="fixed bottom-6 right-6 lg:hidden">
-        <button
-          onClick={() => setIsMobileChatOpen(true)}
-          className="w-14 h-14 rounded-full bg-teal shadow-lg flex items-center justify-center text-white hover:bg-opacity-90 transition"
-        >
-          <ChatBubbleLeftIcon className="h-6 w-6" />
-        </button>
-      </div>
-
-      {/* Mobile Chat Modal */}
-      {isMobileChatOpen && (
-        <div className="fixed inset-0 bg-white z-50 lg:hidden">
-          <ChatInterface
-            student={studentData}
-            isMobile={true}
-            onClose={() => setIsMobileChatOpen(false)}
-          />
-        </div>
-      )}
     </div>
   );
 }

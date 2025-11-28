@@ -18,6 +18,7 @@ export default function Layout({ children }:{children: React.ReactNode}) {
 
   const navigation = [
     { name: "Dashboard", href: "/account", icon: ChartBarIcon },
+    { name: "Profile", href: "/account/profile", icon: UserCircleIcon },
     { name: "Portfolio", href: "/account/portfolio", icon: BriefcaseIcon },
     { name: "Skills", href: "/account/skills", icon: AcademicCapIcon },
     { name: "Settings", href: "/account/settings", icon: Cog6ToothIcon },

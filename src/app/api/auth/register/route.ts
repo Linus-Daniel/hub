@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { fullname, email, password, role } = validationResult.data;
+    const { fullName, email, password, role } = validationResult.data;
 
     // ✅ Ensure DB connection
     await connectDB();
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // ✅ Create user with Mongoose
     const newUser = await TalentUser.create({
-      fullname,
+      fullName,
       email,
       password: hashedPassword,
       role: role || "student",
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     });
 
     // ✅ Send verification email
-    await sendVerificationEmail(email, fullname, emailVerificationToken);
+    await sendVerificationEmail(email, fullName, emailVerificationToken);
 
     return NextResponse.json(
       {

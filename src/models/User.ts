@@ -23,19 +23,19 @@ interface IBilling {
 
 export interface ITalentUser extends Document {
   _id: string;
-  fullname: string;
+  fullName: string; // Changed from fullname to fullName for consistency
   email: string;
-  phone: string;
-  institution: string;
-  avatar: string;
-  major: string;
-  graduationYear: string;
+  phone?: string;
+  institution?: string;
+  avatar?: string;
+  major?: string;
+  graduationYear?: string;
   emailVerified?: Date;
   emailVerificationToken?: string;
   password: string;
-  location: string;
+  location?: string;
 
-  bio: string;
+  bio?: string;
   website?: string;
   linkedin?: string;
   github?: string;
@@ -43,6 +43,10 @@ export interface ITalentUser extends Document {
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   status: "pending" | "approved" | "rejected";
+  
+  // Keep role field for compatibility with conces-official
+  role?: "student" | "alumni" | "recruiter";
+  verified?: boolean; // Add verified field for consistency
 
   notifications: INotifications;
   privacy: IPrivacy;
@@ -54,7 +58,7 @@ export interface ITalentUser extends Document {
 // Schema
 const UserSettingsSchema = new Schema<ITalentUser>(
   {
-    fullname: { type: String, required: true },
+    fullName: { type: String, required: true }, // Changed from fullname to fullName
     email: { type: String, required: true, unique: true },
     phone: { type: String },
     institution: { type: String },
@@ -79,6 +83,16 @@ const UserSettingsSchema = new Schema<ITalentUser>(
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
+
+    // Add role field for compatibility
+    role: {
+      type: String,
+      enum: ["student", "alumni", "recruiter"],
+      default: "student",
+    },
+
+    // Add verified field for consistency with conces-official
+    verified: { type: Boolean, default: false },
 
     // ✅ Password reset fields
     resetPasswordToken: { type: String },
@@ -115,6 +129,20 @@ const UserSettingsSchema = new Schema<ITalentUser>(
   { timestamps: true }
 );
 
- const TalentUser = models.TalentUser || model<ITalentUser>("TalentUser", UserSettingsSchema);
+// Add indexes for better performance
+UserSettingsSchema.index({ email: 1 }, { unique: true });
+UserSettingsSchema.index({ fullName: 1 });
+UserSettingsSchema.index({ status: 1 });
+UserSettingsSchema.index({ role: 1 });
+UserSettingsSchema.index({ institution: 1 });
+UserSettingsSchema.index({ createdAt: -1 });
+UserSettingsSchema.index({ 
+  fullName: 'text', 
+  email: 'text', 
+  institution: 'text', 
+  major: 'text' 
+});
 
-  export default TalentUser;
+const TalentUser = models.TalentUser || model<ITalentUser>("TalentUser", UserSettingsSchema);
+
+export default TalentUser;

@@ -34,6 +34,7 @@ export async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      dbName: "conces", // Use same database as conces-official
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts);
@@ -41,6 +42,7 @@ export async function connectDB() {
 
   try {
     cached.conn = await cached.promise;
+    console.log("🔗 Hub connected to MongoDB (conces database)");
   } catch (e) {
     cached.promise = null;
     throw e;

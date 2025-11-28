@@ -1,17 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { User, Bell, Shield, CreditCard, Save } from "lucide-react";
 import { toast } from "sonner";
-import ProfileSettings from "@/components/accont/ProfileSettings";
-import NotificationSettings from "@/components/accont/Notificatiion";
-import PrivacySettings from "@/components/accont/Privacy";
+import ProfileSettings from "@/components/account/ProfileSettings";
+import NotificationSettings from "@/components/account/Notificatiion";
+import PrivacySettings from "@/components/account/Privacy";
 
 export default function SettingsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("profile");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [userData, setUserData] = useState<any>(null);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth");
+      return;
+    }
+    if (status === "authenticated") {
+      fetchUserSettings();
+    }
+  }, [status, router]);
 
   const tabs = [
     { id: "profile", label: "Profile", icon: User },
@@ -20,9 +34,6 @@ export default function SettingsPage() {
     { id: "billing", label: "Billing", icon: CreditCard },
   ];
 
-  useEffect(() => {
-    fetchUserSettings();
-  }, []);
 
   const fetchUserSettings = async () => {
     try {
@@ -58,12 +69,16 @@ export default function SettingsPage() {
     }
   };
 
-  if (loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
       </div>
     );
+  }
+
+  if (!session) {
+    return null; // Will redirect in useEffect
   }
 
   return (
