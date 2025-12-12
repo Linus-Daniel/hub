@@ -135,16 +135,6 @@ const AuthPage = () => {
               </p>
             </div>
             
-            <div>
-              <p className="text-white/70 mb-6">Trusted by leading organizations:</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
-                {['MTN', 'Interswitch', 'Flutterwave', 'Andela'].map((company) => (
-                  <div key={company} className="bg-white/10 h-12 rounded-md flex items-center justify-center">
-                    <div className="text-white font-bold">{company}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
         

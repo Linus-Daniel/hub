@@ -10,7 +10,6 @@ const taglines = [
   "Access exclusive career opportunities",
 ];
 
-const companies = ["MTN", "Interswitch", "Flutterwave", "Andela"];
 
 export default function BrandingPanel() {
   const [currentTagline, setCurrentTagline] = useState(0);
@@ -54,21 +53,6 @@ export default function BrandingPanel() {
           ))}
         </div>
 
-        <div className="mt-12">
-          <p className="text-white/70 mb-6">
-            Trusted by leading organizations:
-          </p>
-          <div className="grid grid-cols-4 gap-8">
-            {companies.map((company) => (
-              <div
-                key={company}
-                className="bg-white/10 h-12 rounded-md flex items-center justify-center"
-              >
-                <div className="text-white font-bold">{company}</div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

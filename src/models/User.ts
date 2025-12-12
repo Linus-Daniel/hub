@@ -44,8 +44,6 @@ export interface ITalentUser extends Document {
   resetPasswordExpires?: Date;
   status: "pending" | "approved" | "rejected";
   
-  // Keep role field for compatibility with conces-official
-  role?: "student" | "alumni" | "recruiter";
   verified?: boolean; // Add verified field for consistency
 
   notifications: INotifications;
@@ -82,13 +80,6 @@ const UserSettingsSchema = new Schema<ITalentUser>(
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
-    },
-
-    // Add role field for compatibility
-    role: {
-      type: String,
-      enum: ["student", "alumni", "recruiter"],
-      default: "student",
     },
 
     // Add verified field for consistency with conces-official
@@ -133,7 +124,6 @@ const UserSettingsSchema = new Schema<ITalentUser>(
 UserSettingsSchema.index({ email: 1 }, { unique: true });
 UserSettingsSchema.index({ fullName: 1 });
 UserSettingsSchema.index({ status: 1 });
-UserSettingsSchema.index({ role: 1 });
 UserSettingsSchema.index({ institution: 1 });
 UserSettingsSchema.index({ createdAt: -1 });
 UserSettingsSchema.index({ 
